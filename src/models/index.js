@@ -16,9 +16,9 @@ import SubCategory from "./subcategory.js";
 import TypeSurveys from "./typeSurveys.js";
 import Role from "./Role.js";
 import SurveyAssignment from "./surveyAssignment.js";
+import Dependency from "./Dependency.js";
 
 export default (sequelize) => {
-  // Inicializar modelos
   const models = {
     People: People(sequelize),
     Gender: Gender(sequelize),
@@ -38,6 +38,7 @@ export default (sequelize) => {
     TypeSurveys: TypeSurveys(sequelize),
     Role: Role(sequelize),
     SurveyAssignment: SurveyAssignment(sequelize),
+    Dependency: Dependency(sequelize),
   };
 
   // Definir relaciones
@@ -131,6 +132,27 @@ export default (sequelize) => {
   models.Survey.hasMany(models.Category, {
     foreignKey: "surveyId",
     as: "categories",
+  });
+
+  models.Survey.belongsToMany(models.Dependency, {
+    through: "SurveyDependencies",
+    foreignKey: "surveyId",
+    as: "dependencies",
+  });
+  models.Dependency.belongsToMany(models.Survey, {
+    through: "SurveyDependencies",
+    foreignKey: "dependencyId",
+    as: "surveys",
+  });
+
+  // Relación entre SurveyAssignment y Dependency
+  models.Dependency.hasMany(models.SurveyAssignment, {
+    foreignKey: "dependencyId",
+    as: "assignments",
+  });
+  models.SurveyAssignment.belongsTo(models.Dependency, {
+    foreignKey: "dependencyId",
+    as: "dependency",
   });
 
   models.Role.hasMany(models.User, { foreignKey: "roleId", as: "users" });

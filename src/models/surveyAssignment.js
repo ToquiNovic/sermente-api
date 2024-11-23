@@ -17,6 +17,10 @@ export default (sequelize) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
+      dependencyId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
       completed: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

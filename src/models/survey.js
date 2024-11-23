@@ -17,9 +17,13 @@ export default (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      deadline: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
       createdBy: {
         type: DataTypes.UUID,
-        allowNull: true,
+        allowNull: false,
       },
     },
     {
