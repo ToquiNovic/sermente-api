@@ -1,32 +1,32 @@
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
-  const Survey = sequelize.define(
-    'Survey',
+  const SurveyAssignment = sequelize.define(
+    'SurveyAssignment',
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      title: {
-        type: DataTypes.STRING,
+      userId: {
+        type: DataTypes.UUID,
         allowNull: false,
       },
-      description: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      createdBy: {
+      surveyId: {
         type: DataTypes.UUID,
-        allowNull: true,
+        allowNull: false,
+      },
+      completed: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
     },
     {
-      tableName: 'surveys',
+      tableName: 'survey_assignments',
       timestamps: true,
     }
   );
 
-  return Survey;
+  return SurveyAssignment;
 };

@@ -1,8 +1,8 @@
-import { DataTypes } from "sequelize";
+import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
   const User = sequelize.define(
-    "User",
+    'User',
     {
       id: {
         type: DataTypes.UUID,
@@ -12,16 +12,18 @@ export default (sequelize) => {
       numberDoc: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
     },
     {
-      tableName: "users",
+      tableName: 'users',
       timestamps: true,
     }
-  )
+  );
+
   return User;
-}
+};

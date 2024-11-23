@@ -1,15 +1,15 @@
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
-  const Survey = sequelize.define(
-    'Survey',
+  const Role = sequelize.define(
+    'Role',
     {
       id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
       },
-      title: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -17,16 +17,16 @@ export default (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
-      createdBy: {
-        type: DataTypes.UUID,
-        allowNull: true,
+      state: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
       },
     },
     {
-      tableName: 'surveys',
-      timestamps: true,
+      tableName: 'roles',
+      timestamps: false,
     }
   );
 
-  return Survey;
+  return Role;
 };
