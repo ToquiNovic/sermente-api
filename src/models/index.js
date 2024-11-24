@@ -1,3 +1,4 @@
+// models/index.js
 import People from "./people.js";
 import Gender from "./gender.js";
 import Stratum from "./stratum.js";

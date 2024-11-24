@@ -9,6 +9,10 @@ export default (sequelize) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
+      item: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       text: {
         type: DataTypes.TEXT,
         allowNull: false,

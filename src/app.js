@@ -2,7 +2,9 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import { BACKEND_PORT } from './config/index.js';
+import routes from './routes/index.js';
 import sequelize from './database/conexion.js';
+
 
 const port = BACKEND_PORT || 3000;
 const app = express();
@@ -25,6 +27,8 @@ app.get('/', (req, res) => {
 app.get('/ping', (req, res) => {
   res.send('pong');
 });
+
+app.use('/api', routes);
 
 // start server
 app.listen(port, () => {

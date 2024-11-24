@@ -1,8 +1,9 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes } from "sequelize";
+import bcrypt from "bcrypt";
 
 export default (sequelize) => {
   const User = sequelize.define(
-    'User',
+    "User",
     {
       id: {
         type: DataTypes.UUID,
@@ -16,12 +17,24 @@ export default (sequelize) => {
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
+      },
+      roleId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
       },
     },
     {
-      tableName: 'users',
+      tableName: "users",
       timestamps: true,
+      hooks: {
+        beforeCreate: async (user) => {
+          if (user.password) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(user.password, salt);
+          }
+        },
+      },
     }
   );
 
