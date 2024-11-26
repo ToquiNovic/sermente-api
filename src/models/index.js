@@ -12,7 +12,7 @@ import User from "./user.js";
 import Survey from "./survey.js";
 import Question from "./question.js";
 import EvaluationCriteria from "./evaluationCriteria.js";
-import Category from "./category.js";
+import Category from "./Category.js";
 import SubCategory from "./subcategory.js";
 import TypeSurveys from "./typeSurveys.js";
 import Role from "./Role.js";
