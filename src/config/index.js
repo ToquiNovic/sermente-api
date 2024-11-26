@@ -2,8 +2,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const BACKEND_URL =  process.env.BACKEND_URL || 'http://localhost:3000';
-
 export const BACKEND_PORT = process.env.BACK_PORT || 3000;
 
 export const NODE_ENV = process.env.NODE_ENV;
