@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
-  const Question = sequelize.define(
-    'Question',
+  const Option = sequelize.define(
+    'Option',
     {
       id: {
         type: DataTypes.UUID,
@@ -13,16 +13,20 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      subcategoryId: {
+      weight: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      questionId: {
         type: DataTypes.UUID,
         allowNull: false,
       },
     },
     {
-      tableName: 'questions',
+      tableName: 'options',
       timestamps: true,
     }
   );
 
-  return Question;
+  return Option;
 };

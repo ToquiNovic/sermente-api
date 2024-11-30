@@ -50,7 +50,9 @@ export const getUser = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await models.User.findAll();
+    const users = await models.User.findAll({
+      attributes: ['id', 'numberDoc', 'roleId'],
+    });
 
     res.status(200).json({ users });
   } catch (error) {

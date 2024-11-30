@@ -1,16 +1,24 @@
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
-  const EvaluationCriteria = sequelize.define(
-    'EvaluationCriteria',
+  const Answer = sequelize.define(
+    'Answer',
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      description: {
-        type: DataTypes.STRING,
+      surveyAssignmentId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      questionId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      optionId: {
+        type: DataTypes.UUID,
         allowNull: false,
       },
       weight: {
@@ -19,10 +27,10 @@ export default (sequelize) => {
       },
     },
     {
-      tableName: 'evaluation_criteria',
+      tableName: 'answers',
       timestamps: true,
     }
   );
 
-  return EvaluationCriteria;
+  return Answer;
 };
