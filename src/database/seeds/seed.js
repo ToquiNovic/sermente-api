@@ -1,6 +1,6 @@
-import bcrypt from 'bcrypt';
 import sequelize from '../conexion.js';
 import initModels from '../../models/index.js';
+import { hashPassword } from '../utils/cryptoUtils.js'; // Importar la función de hashing
 
 const seedDatabase = async () => {
   try {
@@ -51,7 +51,7 @@ const seedDatabase = async () => {
 
     // Crear Usuario Administrador con contraseña encriptada
     const adminRole = roles.find((role) => role.name === 'Administrador');
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = hashPassword('admin123'); // Hashear la contraseña usando crypto
     const adminUser = await models.User.create({
       numberDoc: '1006458608',
       password: hashedPassword, // Contraseña encriptada

@@ -1,5 +1,5 @@
 import { models } from "../database/conexion.js";
-import bcrypt from "bcrypt";
+import { comparePassword } from "../utils/cryptoUtils.js";
 import { generateToken } from "../utils/jwt.js";
 
 export const login = async (req, res) => {
@@ -14,8 +14,8 @@ export const login = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Verificar la contraseña
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Verificar la contraseña usando crypto
+    const isMatch = comparePassword(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }

@@ -1,4 +1,5 @@
 import { models } from "../database/conexion.js";
+import { hashPassword } from "../utils/cryptoUtils.js"; 
 
 export const createUser = async (req, res) => {
   const { numberDoc, password, roleId } = req.body;
@@ -73,8 +74,7 @@ export const updateUser = async (req, res) => {
     }
 
     if (password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
+      user.password = hashPassword(password);
     }
 
     await user.save();
