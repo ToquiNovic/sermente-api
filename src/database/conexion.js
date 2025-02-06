@@ -27,8 +27,8 @@ sequelize
 if (NODE_ENV === "development") {
   (async () => {
     try {
-      await sequelize.sync({ alter: true }); // Solo en desarrollo
-      logger.inf("Database & tables synced in development mode.");
+      await sequelize.sync({ force: true });
+      logger.inf("Database & tables recreated in development mode.");
     } catch (error) {
       logger.err("Error syncing the database:", error);
     }

@@ -1,6 +1,6 @@
 import sequelize from '../conexion.js';
 import initModels from '../../models/index.js';
-import { hashPassword } from '../utils/cryptoUtils.js'; // Importar la función de hashing
+import { hashPassword } from '../utils/cryptoUtils.js';
 
 const seedDatabase = async () => {
   try {
@@ -51,10 +51,10 @@ const seedDatabase = async () => {
 
     // Crear Usuario Administrador con contraseña encriptada
     const adminRole = roles.find((role) => role.name === 'Administrador');
-    const hashedPassword = hashPassword('admin123'); // Hashear la contraseña usando crypto
+    const hashedPassword = hashPassword('admin123');
     const adminUser = await models.User.create({
       numberDoc: '1006458608',
-      password: hashedPassword, // Contraseña encriptada
+      password: hashedPassword,
       roleId: adminRole.id,
     });
     console.log('Admin user seeded.');
@@ -91,10 +91,10 @@ const seedDatabase = async () => {
     console.log('Dependencies associated with socio-economic survey.');
 
     console.log('Seeding completed successfully!');
-    process.exit(0); // Terminar el script
+    process.exit(0);
   } catch (error) {
     console.error('Error while seeding:', error);
-    process.exit(1); // Terminar el script con error
+    process.exit(1);
   }
 };
 
