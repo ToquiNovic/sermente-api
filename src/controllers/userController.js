@@ -52,10 +52,24 @@ export const getUser = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     const users = await models.User.findAll({
-      attributes: ['id', 'numberDoc', 'roleId'],
+      attributes: ['id', 'numberDoc'], // Seleccionar solo los campos necesarios de User
+      include: [
+        {
+          model: models.Role, // Incluir el modelo Role
+          attributes: ['name'], // Seleccionar solo el campo 'name' de Role
+          as: 'role', // Usar el alias definido en la asociación
+        },
+      ],
     });
 
-    res.status(200).json({ users });
+    // Formatear la respuesta para que sea más clara
+    const formattedUsers = users.map(user => ({
+      id: user.id,
+      numberDoc: user.numberDoc,
+      role: user.role.name, // Acceder al nombre del rol a través de la asociación
+    }));
+
+    res.status(200).json({ users: formattedUsers });
   } catch (error) {
     console.error("Error getting all users:", error);
     res.status(500).json({ message: "Error getting all users.", error });
