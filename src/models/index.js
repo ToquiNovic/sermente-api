@@ -15,7 +15,7 @@ import SubCategory from "./subcategory.js";
 import TypeSurveys from "./typeSurveys.js";
 import Role from "./Role.js";
 import SurveyAssignment from "./surveyAssignment.js";
-import Dependency from "./dependency.js";
+import Dependency from "./Dependency.js";
 import Option from "./option.js";
 import Answer from "./answer.js";
 
