@@ -11,7 +11,7 @@ import User from "./user.js";
 import Survey from "./survey.js";
 import Question from "./question.js";
 import Category from "./Category.js";
-import SubCategory from "./subCategory.js";
+import SubCategory from "./subcategory.js";
 import TypeSurveys from "./typeSurveys.js";
 import Role from "./Role.js";
 import SurveyAssignment from "./surveyAssignment.js";
