@@ -4,6 +4,14 @@ export const createRole = async (req, res) => {
   const { name, description, state } = req.body;
 
   try {
+    // Verificar si ya existe un rol con el mismo nombre
+    const existingRole = await models.Role.findOne({ where: { name } });
+
+    if (existingRole) {
+      return res.status(400).json({ message: "Role with this name already exists." });
+    }
+
+    // Crear el nuevo rol si no existe uno con el mismo nombre
     const role = await models.Role.create({ name, description, state });
 
     res.status(201).json({ message: "Role created successfully.", role });
@@ -60,13 +68,13 @@ export const updateRole = async (req, res) => {
       role.description = description;
     }
 
-    if (state) {
+    if (state !== undefined) {
       role.state = state;
     }
 
     await role.save();
 
-    res.status(200).json({ message: "Role updated successfully." });
+    res.status(200).json({ message: "Role updated successfully.", role });
   } catch (error) {
     console.error("Error updating role:", error);
     res.status(500).json({ message: "Error updating role.", error });
@@ -81,6 +89,17 @@ export const deleteRole = async (req, res) => {
 
     if (!role) {
       return res.status(404).json({ message: "Role not found." });
+    }
+
+    // Verificar si hay usuarios con este rol
+    const usersWithRole = await models.User.count({
+      where: { roleId: id },
+    });
+
+    if (usersWithRole > 0) {
+      return res.status(400).json({
+        message: "Cannot delete role. There are users assigned to this role.",
+      });
     }
 
     await role.destroy();
