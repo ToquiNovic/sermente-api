@@ -2,33 +2,52 @@ import { models } from "../database/conexion.js";
 import { hashPassword } from "../utils/cryptoUtils.js"; 
 
 export const createUser = async (req, res) => {
-  const { numberDoc, password, roleId } = req.body;
+  let { numberDoc, password, roleIds } = req.body;
 
-  // Validación básica de los campos requeridos
-  if (!numberDoc || !password || !roleId) {
-    return res.status(400).json({ message: "All fields are required." });
+  console.log(numberDoc + " - " + password + " - " + roleIds);
+  
+  if (!numberDoc || !password || roleIds == null) {
+    return res.status(400).json({ message: "Todos los campos son obligatorios y roleIds debe ser proporcionado." });
+  }
+
+  // Convertir un solo número en un array si es necesario
+  if (!Array.isArray(roleIds)) {
+    roleIds = [roleIds];
   }
 
   try {
-    // Verifica si el número de documento ya existe
+    // Verificar si el usuario ya existe
     const existingUser = await models.User.findOne({ where: { numberDoc } });
     if (existingUser) {
-      return res.status(409).json({ message: "User with this numberDoc already exists." });
+      return res.status(409).json({ message: "El usuario ya existe." });
     }
 
-    // Crea el usuario
-    const newUser = await models.User.create({ numberDoc, password, roleId });
+    // 🔒 Hashear la contraseña usando tu utilidad
+    const hashedPassword = hashPassword(password);
 
-    // Excluye la contraseña del objeto retornado
+    // Crear el usuario con la contraseña hasheada
+    const newUser = await models.User.create({ numberDoc, password: hashedPassword });
+
+    // 🔎 Validar si los roles existen
+    const roles = await models.Role.findAll({ where: { id: roleIds } });
+
+    if (roles.length !== roleIds.length) {
+      return res.status(400).json({ message: "Uno o más roleIds no existen." });
+    }
+
+    // Asignar roles usando addRoles en lugar de UserRole directamente
+    await newUser.addRoles(roleIds);
+
+    // Excluir la contraseña en la respuesta
     const { password: _, ...userWithoutPassword } = newUser.toJSON();
 
     res.status(201).json({
-      message: "User created successfully.",
+      message: "Usuario creado exitosamente.",
       user: userWithoutPassword,
     });
   } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ message: "Error creating user.", error });
+    console.error("Error al crear usuario:", error);
+    res.status(500).json({ message: "Error al crear usuario.", error });
   }
 };
 
@@ -52,21 +71,21 @@ export const getUser = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     const users = await models.User.findAll({
-      attributes: ['id', 'numberDoc'], // Seleccionar solo los campos necesarios de User
+      attributes: ["id", "numberDoc"],
       include: [
         {
-          model: models.Role, // Incluir el modelo Role
-          attributes: ['name'], // Seleccionar solo el campo 'name' de Role
-          as: 'role', // Usar el alias definido en la asociación
+          model: models.Role,
+          attributes: ["id", "name"],
+          as: "roles", // Debe coincidir con el alias en belongsToMany
+          through: { attributes: [] },
         },
-      ],
+      ]      
     });
 
-    // Formatear la respuesta para que sea más clara
     const formattedUsers = users.map(user => ({
       id: user.id,
       numberDoc: user.numberDoc,
-      role: user.role.name, // Acceder al nombre del rol a través de la asociación
+      roles: user.roles ? user.roles.map(role => ({ id: role.id, name: role.name })) : [],
     }));
 
     res.status(200).json({ users: formattedUsers });
@@ -75,6 +94,7 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ message: "Error getting all users.", error });
   }
 };
+
 
 export const updateUser = async (req, res) => {
   const { id } = req.params;
@@ -118,3 +138,73 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Error deleting user.", error });
   }
 };  
+
+export const assignRoleToUser = async (req, res) => {
+  const { id } = req.params;
+  const { roleId } = req.body;
+
+  if (!roleId) {
+    return res.status(400).json({ message: "Role ID is required." });
+  }
+
+  try {
+    const user = await models.User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const role = await models.Role.findByPk(roleId);
+    if (!role) {
+      return res.status(404).json({ message: "Role not found." });
+    }
+
+    await user.addRole(role);
+
+    res.status(200).json({ message: "Role assigned successfully." });
+  } catch (error) {
+    console.error("Error assigning role:", error);
+    res.status(500).json({ message: "Error assigning role.", error });
+  }
+};
+
+export const removeRoleFromUser = async (req, res) => {
+  const { id } = req.params;
+  const { roleId } = req.body;
+
+  if (!roleId) {
+    return res.status(400).json({ message: "Role ID is required." });
+  }
+
+  try {
+    const user = await models.User.findByPk(id, {
+      include: {
+        model: models.Role,
+        as: "roles",
+        through: { attributes: [] },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const role = await models.Role.findByPk(roleId);
+    if (!role) {
+      return res.status(404).json({ message: "Role not found." });
+    }
+
+    // Verificar si el usuario tiene el rol asignado
+    const hasRole = user.roles.some((r) => r.id == roleId);
+    if (!hasRole) {
+      return res.status(400).json({ message: "User does not have this role assigned." });
+    }
+
+    // Eliminar la relación
+    await user.removeRole(role);
+
+    res.status(200).json({ message: "Role removed successfully." });
+  } catch (error) {
+    console.error("Error removing role:", error);
+    res.status(500).json({ message: "Error removing role.", error });
+  }
+};

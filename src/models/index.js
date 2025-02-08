@@ -18,6 +18,7 @@ import SurveyAssignment from "./surveyAssignment.js";
 import Dependency from "./Dependency.js";
 import Option from "./option.js";
 import Answer from "./answer.js";
+import UserRole from "./UserRoles.js";
 
 export default (sequelize) => {
   const models = {
@@ -41,6 +42,7 @@ export default (sequelize) => {
     Dependency: Dependency(sequelize),
     Option: Option(sequelize),
     Answer: Answer(sequelize),
+    UserRole: UserRole(sequelize),
   };
 
   // Relacionar People y Gender
@@ -173,9 +175,18 @@ export default (sequelize) => {
   });
 
   // Relacionar Role y User
-  models.Role.hasMany(models.User, { foreignKey: "roleId", as: "users" });
-  models.User.belongsTo(models.Role, { foreignKey: "roleId", as: "role" });
-
+  models.User.belongsToMany(models.Role, { 
+    through: models.UserRole, 
+    foreignKey: "userId",
+    as: "roles",
+  });
+  
+  models.Role.belongsToMany(models.User, { 
+    through: models.UserRole, 
+    foreignKey: "roleId",
+    as: "users",
+  });
+    
   // Relacionar User y Survey
   models.User.hasMany(models.Survey, {
     foreignKey: "createdBy",
