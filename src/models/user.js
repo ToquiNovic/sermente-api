@@ -17,6 +17,11 @@ export default (sequelize) => {
       },
       password: {
         type: DataTypes.STRING,
+        allowNull: true,
+      },
+      state: {
+        type: DataTypes.ENUM("active", "inactive","suspended"),
+        defaultValue: "active",
         allowNull: false,
       },
     },

@@ -1,6 +1,6 @@
 import sequelize from '../conexion.js';
 import initModels from '../../models/index.js';
-import { hashPassword } from '../utils/cryptoUtils.js';
+import { hashPassword } from '../../utils/cryptoUtils.js';
 
 const seedDatabase = async () => {
   try {

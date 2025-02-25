@@ -5,9 +5,9 @@ export const createUser = async (req, res) => {
   let { numberDoc, password, roleIds } = req.body;
 
   console.log(numberDoc + " - " + password + " - " + roleIds);
-  
-  if (!numberDoc || !password || roleIds == null) {
-    return res.status(400).json({ message: "Todos los campos son obligatorios y roleIds debe ser proporcionado." });
+
+  if (!numberDoc || roleIds == null) {
+    return res.status(400).json({ message: "El número de documento y los roles son obligatorios." });
   }
 
   // Convertir un solo número en un array si es necesario
@@ -22,12 +22,6 @@ export const createUser = async (req, res) => {
       return res.status(409).json({ message: "El usuario ya existe." });
     }
 
-    // 🔒 Hashear la contraseña usando tu utilidad
-    const hashedPassword = hashPassword(password);
-
-    // Crear el usuario con la contraseña hasheada
-    const newUser = await models.User.create({ numberDoc, password: hashedPassword });
-
     // 🔎 Validar si los roles existen
     const roles = await models.Role.findAll({ where: { id: roleIds } });
 
@@ -35,7 +29,22 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ message: "Uno o más roleIds no existen." });
     }
 
-    // Asignar roles usando addRoles en lugar de UserRole directamente
+    // Verificar si el rol seleccionado es "Encuestado"
+    const isEncuestado = roles.some((role) => role.name === "Encuestado");
+
+    // La contraseña solo es obligatoria si el usuario NO es "Encuestado"
+    let hashedPassword = null;
+    if (!isEncuestado) {
+      if (!password) {
+        return res.status(400).json({ message: "La contraseña es obligatoria excepto para encuestados." });
+      }
+      hashedPassword = hashPassword(password);
+    }
+
+    // Crear el usuario con o sin contraseña
+    const newUser = await models.User.create({ numberDoc, password: hashedPassword });
+
+    // Asignar roles al usuario
     await newUser.addRoles(roleIds);
 
     // Excluir la contraseña en la respuesta
@@ -71,12 +80,12 @@ export const getUser = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     const users = await models.User.findAll({
-      attributes: ["id", "numberDoc"],
+      attributes: ["id", "numberDoc", "state"],
       include: [
         {
           model: models.Role,
           attributes: ["id", "name"],
-          as: "roles", // Debe coincidir con el alias en belongsToMany
+          as: "roles",
           through: { attributes: [] },
         },
       ]      
@@ -85,6 +94,7 @@ export const getAllUsers = async (req, res) => {
     const formattedUsers = users.map(user => ({
       id: user.id,
       numberDoc: user.numberDoc,
+      state: user.state,
       roles: user.roles ? user.roles.map(role => ({ id: role.id, name: role.name })) : [],
     }));
 
@@ -94,7 +104,6 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ message: "Error getting all users.", error });
   }
 };
-
 
 export const updateUser = async (req, res) => {
   const { id } = req.params;
@@ -206,5 +215,35 @@ export const removeRoleFromUser = async (req, res) => {
   } catch (error) {
     console.error("Error removing role:", error);
     res.status(500).json({ message: "Error removing role.", error });
+  }
+};
+
+// servicio para actializar el estado de un usuario
+export const updateState = async (req, res) => {
+  const { id } = req.params;
+  const { state } = req.body;
+
+  console.log(state);  
+
+  const validStates = ["active", "inactive", "suspended"];
+
+  if (!validStates.includes(state)) {
+    return res.status(400).json({ message: `Invalid state. Allowed values: ${validStates.join(", ")}` });
+  }
+
+  try {
+    const user = await models.User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    user.state = state;
+    await user.save();
+
+    res.status(200).json({ message: "User state updated successfully.", user });
+  } catch (error) {
+    console.error("Error updating user state:", error);
+    res.status(500).json({ message: "Error updating user state.", error });
   }
 };
