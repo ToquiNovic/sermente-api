@@ -1,3 +1,4 @@
+import { or } from "sequelize";
 import { models } from "../database/conexion.js";
 
 export const createSurvey = async (req, res) => {
@@ -51,6 +52,7 @@ export const getAllSurveys = async (req, res) => {
   try {
     const surveys = await models.Survey.findAll({
       attributes: ["id", "title", "description", "deadline", "createdAt"],
+      order: [["createdAt", "DESC"]],
       include: [
         {
           model: models.TypeSurveys,
@@ -74,7 +76,7 @@ export const getAllSurveys = async (req, res) => {
 
 export const updateSurvey = async (req, res) => {
   const { id } = req.params;
-  const { title, description, deadline, typeSurveyId, dependencies } = req.body;
+  const { title, description, deadline, typeSurveyId } = req.body;
 
   try {
     const survey = await models.Survey.findByPk(id);
@@ -97,10 +99,6 @@ export const updateSurvey = async (req, res) => {
 
     if (typeSurveyId) {
       survey.typeSurveyId = typeSurveyId;
-    }
-
-    if (dependencies) {
-      survey.dependencies = dependencies;
     }
 
     await survey.save();
