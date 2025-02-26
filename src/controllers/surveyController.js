@@ -1,7 +1,7 @@
 import { models } from "../database/conexion.js";
 
 export const createSurvey = async (req, res) => {
-  const { title, description, deadline, typeSurveyId, dependencies } = req.body;
+  const { title, description, deadline, typeSurveyId, createdBy } = req.body;
 
   try {
     // Verificar si el tipo de encuesta es válido
@@ -10,17 +10,8 @@ export const createSurvey = async (req, res) => {
       return res.status(400).json({ message: "Invalid type survey." });
     }
 
-    // Verificar si las dependencias son válidas
-    if (dependencies) {
-      const invalidDependencies = dependencies.filter(
-        (dependency) => !models.Dependency.findByPk(dependency)
-      );
-      if (invalidDependencies.length > 0) {
-        return res.status(400).json({
-          message: "Invalid dependencies.",
-          invalidDependencies,
-        });
-      }
+    if (!createdBy) {
+      return res.status(400).json({ message: "User ID (createdBy) is required." });
     }
 
     let survey = await models.Survey.create({
@@ -28,13 +19,8 @@ export const createSurvey = async (req, res) => {
       description,
       deadline,
       typeSurveyId,
-      dependencies,
+      createdBy,
     });
-
-    // Asignar las dependencias al encuesta
-    if (dependencies) {
-      await survey.addDependencies(dependencies);
-    }
 
     res.status(201).json({ message: "Survey created successfully.", survey });
   } catch (error) {
@@ -42,6 +28,7 @@ export const createSurvey = async (req, res) => {
     res.status(500).json({ message: "Error creating survey.", error });
   }
 };
+
 
 export const getSurvey = async (req, res) => {
   const { id } = req.params;
