@@ -19,6 +19,7 @@ import Dependency from "./Dependency.js";
 import Option from "./option.js";
 import Answer from "./answer.js";
 import UserRole from "./UserRoles.js";
+import Profession from "./profession.js";
 
 export default (sequelize) => {
   const models = {
@@ -43,6 +44,7 @@ export default (sequelize) => {
     Option: Option(sequelize),
     Answer: Answer(sequelize),
     UserRole: UserRole(sequelize),
+    Profession: Profession(sequelize),
   };
 
   // Relacionar People y Gender
@@ -63,6 +65,16 @@ export default (sequelize) => {
   models.People.belongsTo(models.Stratum, {
     foreignKey: "stratumId",
     as: "stratum",
+  });
+
+  // Relacionar People y Profession
+  models.Profession.hasMany(models.People, {
+    foreignKey: "professionId",
+    as: "people",
+  });
+  models.People.belongsTo(models.Profession, {
+    foreignKey: "professionId",
+    as: "profession",
   });
 
   // Relacionar People y LevelOfStudy
@@ -159,37 +171,27 @@ export default (sequelize) => {
     otherKey: "dependencyId",
     as: "dependencies",
   });
-  
+
   models.Dependency.belongsToMany(models.Survey, {
     through: { model: "SurveyDependencies" },
     foreignKey: "dependencyId",
     otherKey: "surveyId",
     as: "surveys",
-  });  
-
-  // Relacionar Dependency y SurveyAssignment
-  models.Dependency.hasMany(models.SurveyAssignment, {
-    foreignKey: "dependencyId",
-    as: "assignments",
-  });
-  models.SurveyAssignment.belongsTo(models.Dependency, {
-    foreignKey: "dependencyId",
-    as: "dependency",
   });
 
   // Relacionar Role y User
-  models.User.belongsToMany(models.Role, { 
-    through: models.UserRole, 
+  models.User.belongsToMany(models.Role, {
+    through: models.UserRole,
     foreignKey: "userId",
     as: "roles",
   });
   
-  models.Role.belongsToMany(models.User, { 
-    through: models.UserRole, 
+  models.Role.belongsToMany(models.User, {
+    through: models.UserRole,
     foreignKey: "roleId",
     as: "users",
   });
-    
+  
   // Relacionar User y Survey
   models.User.hasMany(models.Survey, {
     foreignKey: "createdBy",

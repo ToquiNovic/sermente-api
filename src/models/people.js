@@ -1,27 +1,19 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
   const People = sequelize.define(
-    'People',
+    "People",
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      firstName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      lastName: {
+      names: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      firstSurname: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      lastSurname: {
+      surNames: {
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -40,10 +32,6 @@ export default (sequelize) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
-      numberDoc: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       genderId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -52,9 +40,17 @@ export default (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      professionId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "professions",
+          key: "id",
+        },
+      },
     },
     {
-      tableName: 'peoples',
+      tableName: "peoples",
       timestamps: true,
     }
   );

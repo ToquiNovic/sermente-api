@@ -1,28 +1,25 @@
 import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
-  const UserRole = sequelize.define(
-    "UserRole",
+  const Profession = sequelize.define(
+    "Profession",
     {
       id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      userId: {
-        type: DataTypes.UUID,
+      name: {
+        type: DataTypes.STRING,
         allowNull: false,
-      },
-      roleId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+        unique: true,
       },
     },
     {
-      tableName: "UserRoles",
+      tableName: "professions",
       timestamps: false,
     }
   );
 
-  return UserRole;
+  return Profession;
 };
