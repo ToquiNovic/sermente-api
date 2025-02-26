@@ -154,15 +154,18 @@ export default (sequelize) => {
 
   // Relacionar Survey y Dependency (Many-to-Many)
   models.Survey.belongsToMany(models.Dependency, {
-    through: "SurveyDependencies",
+    through: { model: "SurveyDependencies" },
     foreignKey: "surveyId",
+    otherKey: "dependencyId",
     as: "dependencies",
   });
+  
   models.Dependency.belongsToMany(models.Survey, {
-    through: "SurveyDependencies",
+    through: { model: "SurveyDependencies" },
     foreignKey: "dependencyId",
+    otherKey: "surveyId",
     as: "surveys",
-  });
+  });  
 
   // Relacionar Dependency y SurveyAssignment
   models.Dependency.hasMany(models.SurveyAssignment, {
