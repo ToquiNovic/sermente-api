@@ -1,3 +1,4 @@
+// models/survey.js
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
@@ -22,6 +23,10 @@ export default (sequelize) => {
         allowNull: true,
       },
       createdBy: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      typeSurveyId: {
         type: DataTypes.UUID,
         allowNull: false,
       },

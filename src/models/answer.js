@@ -1,3 +1,4 @@
+// models/answer.js
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
@@ -10,10 +11,6 @@ export default (sequelize) => {
         primaryKey: true,
       },
       surveyAssignmentId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
-      questionId: {
         type: DataTypes.UUID,
         allowNull: false,
       },

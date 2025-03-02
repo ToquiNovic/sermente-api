@@ -1,3 +1,4 @@
+// models/typeSurveys.js
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
@@ -5,10 +6,9 @@ export default (sequelize) => {
     'TypeSurveys',
     {
       id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        autoIncrement: true,
       },
       name: {
         type: DataTypes.STRING,

@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "u647002410_sermenteuser",
-    "password": "om|ic!$K3!",
-    "database": "u647002410_sermente",
-    "host": "srv716.hstgr.io",
+    "username": "root",
+    "password": null,
+    "database": "database_development",
+    "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {

@@ -2,12 +2,12 @@ import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
   const Stratum = sequelize.define(
-    "Statum",
+    "Stratum",
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        autoIncrement: true,
       },
       name: {
         type: DataTypes.STRING,

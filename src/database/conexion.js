@@ -14,28 +14,22 @@ const sequelize = new Sequelize(DB_URL, {
 const models = initModels(sequelize);
 
 // Verificar conexión
-sequelize
-  .authenticate()
-  .then(() => {
+(async () => {
+  try {
+    await sequelize.authenticate();
     logger.inf("Connection to the database has been established successfully.");
-  })
-  .catch((error) => {
-    logger.err("Unable to connect to the database:", error);
-  });
 
-// Sincronización condicional
-if (NODE_ENV === "development") {
-  (async () => {
-    try {
-      await sequelize.sync({ force: true });
-      logger.inf("Database & tables recreated in development mode.");
-    } catch (error) {
-      logger.err("Error syncing the database:", error);
+    // Sincronización condicional SOLO en desarrollo
+    if (NODE_ENV === "development") {
+      await sequelize.sync({ alter: true });
+      logger.inf("Database synchronized successfully in development mode.");
+    } else {
+      logger.inf("Production mode: No sync operation performed. Use migrations.");
     }
-  })();
-} else {
-  logger.inf("Production mode: No sync operation performed. Use migrations.");
-}
+  } catch (error) {
+    logger.err("Database connection error:", error);
+  }
+})();
 
 export default sequelize;
 export { sequelize, models };

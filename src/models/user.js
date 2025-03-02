@@ -1,3 +1,4 @@
+// models/user.js
 import { DataTypes } from "sequelize";
 import { hashPassword } from "../utils/cryptoUtils.js";
 

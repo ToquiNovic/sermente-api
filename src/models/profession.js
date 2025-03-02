@@ -1,3 +1,4 @@
+// models/profession.js
 import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
@@ -5,14 +6,18 @@ export default (sequelize) => {
     "Profession",
     {
       id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
+      },
+      levelOfStudyId: {
+        type: DataTypes.UUID,
+        allowNull: true,
       },
     },
     {

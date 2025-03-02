@@ -1,3 +1,4 @@
+// models/people.js
 import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
@@ -20,33 +21,57 @@ export default (sequelize) => {
       email: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
         validate: {
           isEmail: true,
         },
       },
       phone: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
+        validate: {
+          is: /^[0-9+\-() ]{7,15}$/i,
+        },
       },
       birthday: {
         type: DataTypes.DATE,
         allowNull: false,
       },
       genderId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+        type: DataTypes.UUID,
+        allowNull: true,
       },
       salaryTypeId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      professionId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: true,
-        references: {
-          model: "professions",
-          key: "id",
-        },
+      },
+      levelOfStudyId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
+      dependencyId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
+      maritalStatusId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },      
+      typeDocumentId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
+      stratumId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
+      housingTypeId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
+      contractTypeId: {
+        type: DataTypes.UUID,
+        allowNull: true,
       },
     },
     {

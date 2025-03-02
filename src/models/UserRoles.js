@@ -1,3 +1,4 @@
+// models/UserRoles.js
 import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
@@ -5,8 +6,8 @@ export default (sequelize) => {
     "UserRole",
     {
       id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       userId: {
@@ -14,8 +15,13 @@ export default (sequelize) => {
         allowNull: false,
       },
       roleId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
+      },
+      state: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
       },
     },
     {
