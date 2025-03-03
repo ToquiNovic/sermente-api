@@ -32,7 +32,7 @@ export default (sequelize) => {
       hooks: {
         beforeCreate: async (user) => {
           if (user.password) {
-            user.password = await hashPassword(user.password); 
+            user.password = await hashPassword(user.password, 10); 
           }
         },
       },

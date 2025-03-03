@@ -2,50 +2,45 @@ import { models } from "../database/conexion.js";
 import { hashPassword } from "../utils/cryptoUtils.js"; 
 
 export const createUser = async (req, res) => {
-  let { numberDoc, password, roleIds } = req.body;
+  let { numberDoc, password, roleNames } = req.body; // Recibe roleNames en lugar de roleIds
 
-  if (!numberDoc || roleIds == null) {
+  if (!numberDoc || !roleNames) {
     return res.status(400).json({ message: "El número de documento y los roles son obligatorios." });
   }
 
-  // Convertir un solo número en un array si es necesario
-  if (!Array.isArray(roleIds)) {
-    roleIds = [roleIds];
+  if (!Array.isArray(roleNames)) {
+    roleNames = [roleNames];
   }
 
   try {
-    // Verificar si el usuario ya existe
     const existingUser = await models.User.findOne({ where: { numberDoc } });
     if (existingUser) {
       return res.status(409).json({ message: "El usuario ya existe." });
     }
 
-    // 🔎 Validar si los roles existen
-    const roles = await models.Role.findAll({ where: { id: roleIds } });
+    // Buscar roles por su nombre en la base de datos
+    const roles = await models.Role.findAll({ where: { name: roleNames } });
 
-    if (roles.length !== roleIds.length) {
-      return res.status(400).json({ message: "Uno o más roleIds no existen." });
+    if (roles.length !== roleNames.length) {
+      return res.status(400).json({ message: "Uno o más roles no existen." });
     }
 
-    // Verificar si el rol seleccionado es "Encuestado"
     const isEncuestado = roles.some((role) => role.name === "Encuestado");
 
-    // La contraseña solo es obligatoria si el usuario NO es "Encuestado"
     let hashedPassword = null;
     if (!isEncuestado) {
       if (!password) {
         return res.status(400).json({ message: "La contraseña es obligatoria excepto para encuestados." });
       }
-      hashedPassword = hashPassword(password);
+      hashedPassword = await hashPassword(password);
     }
 
-    // Crear el usuario con o sin contraseña
     const newUser = await models.User.create({ numberDoc, password: hashedPassword });
 
-    // Asignar roles al usuario
-    await newUser.addRoles(roleIds);
+    // Asignar los roles usando los IDs obtenidos
+    const roleIdsDB = roles.map(role => role.id);
+    await newUser.addRoles(roleIdsDB);
 
-    // Excluir la contraseña en la respuesta
     const { password: _, ...userWithoutPassword } = newUser.toJSON();
 
     res.status(201).json({
@@ -57,6 +52,7 @@ export const createUser = async (req, res) => {
     res.status(500).json({ message: "Error al crear usuario.", error });
   }
 };
+
 
 export const getUser = async (req, res) => {
   const { id } = req.params;
