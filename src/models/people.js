@@ -37,6 +37,14 @@ export default (sequelize) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
+      dependency: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      positionCompany: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       genderId: {
         type: DataTypes.UUID,
         allowNull: true,
@@ -46,10 +54,6 @@ export default (sequelize) => {
         allowNull: true,
       },
       levelOfStudyId: {
-        type: DataTypes.UUID,
-        allowNull: true,
-      },
-      dependencyId: {
         type: DataTypes.UUID,
         allowNull: true,
       },
@@ -70,6 +74,10 @@ export default (sequelize) => {
         allowNull: true,
       },
       contractTypeId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
+      hierarchyOfEmploymentId: {
         type: DataTypes.UUID,
         allowNull: true,
       },

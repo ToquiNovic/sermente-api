@@ -13,14 +13,19 @@ import Survey from "./survey.js";
 import Question from "./question.js";
 import Category from "./Category.js";
 import SubCategory from "./subcategory.js";
-import TypeSurveys from "./typeSurveys.js";
 import Role from "./Role.js";
 import SurveyAssignment from "./surveyAssignment.js";
-import Dependency from "./Dependency.js";
 import Option from "./option.js";
 import Answer from "./answer.js";
 import UserRole from "./UserRoles.js";
 import Profession from "./profession.js";
+import HierarchyOfEmployment from "./hierarchyofEmployment.js";
+import Company from "./company.js";
+import UserCompany from "./UserCompany.js";
+import AnswerOption from "./answerOption.js";
+import Report from "./report.js";
+import Economy from "./Economy.js";
+import EconomyConfig from "./EconomyConfig.js";
 
 export default (sequelize) => {
   const models = {
@@ -29,7 +34,6 @@ export default (sequelize) => {
     ContractType: ContractType(sequelize),
     SalaryType: SalaryType(sequelize),
     LevelOfStudy: LevelOfStudy(sequelize),
-    TypeSurveys: TypeSurveys(sequelize),
     HousingType: HousingType(sequelize),
     Stratum: Stratum(sequelize),
     TypeDocument: TypeDocument(sequelize),
@@ -39,14 +43,94 @@ export default (sequelize) => {
     SubCategory: SubCategory(sequelize),
     Category: Category(sequelize),
     SurveyAssignment: SurveyAssignment(sequelize),
-    Dependency: Dependency(sequelize),
     UserRole: UserRole(sequelize),
     Role: Role(sequelize),
     User: User(sequelize),
     Survey: Survey(sequelize),
     Question: Question(sequelize),
     Option: Option(sequelize),
+    HierarchyOfEmployment: HierarchyOfEmployment(sequelize),
+    Company: Company(sequelize),
+    UserCompany: UserCompany(sequelize),
+    AnswerOption: AnswerOption(sequelize),
+    Report: Report(sequelize),
+    Economy: Economy(sequelize),
+    EconomyConfig: EconomyConfig(sequelize),
   };
+
+  // Relacionar Economy y User
+  models.Economy.belongsTo(models.User, {
+    foreignKey: "userId",
+    as: "user",
+  });
+
+  models.User.hasMany(models.Economy, {
+    foreignKey: "userId",
+    as: "economies",
+  });
+
+  // Relacionar EconomyConfig y Economy
+  models.EconomyConfig.hasOne(models.Economy, {
+    foreignKey: "economyConfigId",
+    as: "economyConfig",
+  });
+  
+  models.Economy.belongsTo(models.EconomyConfig, {
+    foreignKey: "economyConfigId",
+    as: "economyConfig",
+  });
+
+  // Relacionar Report y Survey
+  models.Report.belongsTo(models.Survey, {
+    foreignKey: "surveyId",
+    as: "survey",
+  });
+
+  models.Survey.hasMany(models.Report, {
+    foreignKey: "surveyId",
+    as: "reports",
+  });
+
+  // Relacionar AnswerOption y Answer
+  models.Answer.hasMany(models.AnswerOption, {
+    foreignKey: "answerId",
+    as: "answerOptions",
+  });
+
+  models.AnswerOption.belongsTo(models.Answer, {
+    foreignKey: "answerId",
+    as: "answer",
+  });
+
+  // Relacionar AnswerOption y Option
+  models.Option.hasMany(models.AnswerOption, {
+    foreignKey: "optionId",
+    as: "answerOptions",
+  });
+  models.AnswerOption.belongsTo(models.Option, {
+    foreignKey: "optionId",
+    as: "option",
+  });
+
+  // Relacionar UserCompany y User
+  models.User.hasMany(models.UserCompany, {
+    foreignKey: "userId",
+    as: "UserCompanies",
+  });
+  models.UserCompany.belongsTo(models.User, {
+    foreignKey: "userId",
+    as: "user",
+  });
+
+  // Relacionar UserCompany y Company
+  models.Company.hasMany(models.UserCompany, {
+    foreignKey: "companyId",
+    as: "UserCompanies",
+  });
+  models.UserCompany.belongsTo(models.Company, {
+    foreignKey: "companyId",
+    as: "company",
+  });
 
   // Relacionar People y Gender
   models.Gender.hasMany(models.People, {
@@ -56,6 +140,16 @@ export default (sequelize) => {
   models.People.belongsTo(models.Gender, {
     foreignKey: "genderId",
     as: "gender",
+  });
+
+  // Relacionar People y HierarchyOfEmployment
+  models.HierarchyOfEmployment.hasMany(models.People, {
+    foreignKey: "hierarchyOfEmploymentId",
+    as: "people",
+  });
+  models.People.belongsTo(models.HierarchyOfEmployment, {
+    foreignKey: "hierarchyOfEmploymentId",
+    as: "hierarchyOfEmployment",
   });
 
   // Relacionar People y Stratum
@@ -145,36 +239,6 @@ export default (sequelize) => {
     as: "people",
   });
 
-  // Relacionar TypeSurveys y Survey
-  models.TypeSurveys.hasMany(models.Survey, {
-    foreignKey: "typeSurveyId",
-    as: "surveys",
-  });
-  models.Survey.belongsTo(models.TypeSurveys, {
-    foreignKey: "typeSurveyId",
-    as: "typeSurvey",
-  });
-
-  // Relacionar Survey y Category
-  models.Survey.hasMany(models.Category, {
-    foreignKey: "surveyId",
-    as: "categories",
-  });
-  models.Category.belongsTo(models.Survey, {
-    foreignKey: "surveyId",
-    as: "survey",
-  });
-
-  // Relacionar People y Dependency
-  models.Dependency.hasMany(models.People, {
-    foreignKey: "dependencyId",
-    as: "people",
-  });
-  models.People.belongsTo(models.Dependency, {
-    foreignKey: "dependencyId",
-    as: "dependency",
-  });
-
   // Relacionar Role y User
   models.User.belongsToMany(models.Role, {
     through: models.UserRole,
@@ -188,25 +252,16 @@ export default (sequelize) => {
     as: "users",
   });
 
-  // Relacionar User y Survey
-  models.User.hasMany(models.Survey, {
-    foreignKey: "createdBy",
-    as: "createdSurveys",
-  });
-  models.Survey.belongsTo(models.User, {
-    foreignKey: "createdBy",
-    as: "creator",
-  });
-
-  // Relacionar Survey y User
-  models.Survey.belongsToMany(models.User, {
+  // Relacionar Survey y UserCompany
+  models.Survey.belongsToMany(models.UserCompany, {
     through: models.SurveyAssignment,
     foreignKey: "surveyId",
-    as: "assignedUsers",
+    as: "assignedUserCompanies",
   });
-  models.User.belongsToMany(models.Survey, {
+
+  models.UserCompany.belongsToMany(models.Survey, {
     through: models.SurveyAssignment,
-    foreignKey: "userId",
+    foreignKey: "userCompanyId",
     as: "assignedSurveys",
   });
 
@@ -240,14 +295,14 @@ export default (sequelize) => {
     as: "question",
   });
 
-  // Relacionar Option y Answer
-  models.Option.hasMany(models.Answer, {
-    foreignKey: "optionId",
-    as: "answers",
+  // Relacionar SurveyAssignment y AnswerOption
+  models.SurveyAssignment.hasMany(models.AnswerOption, {
+    foreignKey: "surveyAssignmentId",
+    as: "answerOptions",
   });
-  models.Answer.belongsTo(models.Option, {
-    foreignKey: "optionId",
-    as: "option",
+  models.AnswerOption.belongsTo(models.SurveyAssignment, {
+    foreignKey: "surveyAssignmentId",
+    as: "surveyAssignment",
   });
 
   return models;

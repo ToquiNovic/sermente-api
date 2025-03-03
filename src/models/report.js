@@ -1,16 +1,15 @@
-// models/Category.js
-import { DataTypes } from 'sequelize';
+import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
-  const Category = sequelize.define(
-    'Category',
+  const Report = sequelize.define(
+    "Report",
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      name: {
+      title: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -18,12 +17,20 @@ export default (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      deadline: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      typeSurveyId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
     },
     {
-      tableName: 'categories',
+      tableName: "reports",
       timestamps: true,
     }
   );
 
-  return Category;
+  return Report;
 };

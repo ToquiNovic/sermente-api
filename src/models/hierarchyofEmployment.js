@@ -1,8 +1,9 @@
-import { DataTypes } from 'sequelize';
+// models/hierarchyofEmployment.js
+import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
-  const Dependency = sequelize.define(
-    'Dependency',
+  const HierarchyOfEmployment = sequelize.define(
+    "HierarchyOfEmployment",
     {
       id: {
         type: DataTypes.UUID,
@@ -15,10 +16,10 @@ export default (sequelize) => {
       },
     },
     {
-      tableName: 'dependencies',
+      tableName: "hierarchy_of_employment",
       timestamps: false,
     }
   );
 
-  return Dependency;
+  return HierarchyOfEmployment;
 };

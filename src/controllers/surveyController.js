@@ -1,4 +1,3 @@
-import { or } from "sequelize";
 import { models } from "../database/conexion.js";
 
 export const createSurvey = async (req, res) => {

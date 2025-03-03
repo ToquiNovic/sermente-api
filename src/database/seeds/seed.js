@@ -45,14 +45,6 @@ const seedDatabase = async () => {
     ]);
     console.log('TypeSurveys seeded.');
 
-    // Crear Dependencias
-    const dependencies = await models.Dependency.bulkCreate([
-      { id: crypto.randomUUID(), name: 'Dependencia A' },
-      { id: crypto.randomUUID(), name: 'Dependencia B' },
-      { id: crypto.randomUUID(), name: 'Dependencia C' },
-    ]);
-    console.log('Dependencies seeded.');
-
     // Crear Usuario Administrador con contraseña encriptada
     const adminRole = roles.find((role) => role.name === 'Administrador');
     const hashedPassword = hashPassword('123456');

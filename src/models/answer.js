@@ -10,12 +10,8 @@ export default (sequelize) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      surveyAssignmentId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
-      optionId: {
-        type: DataTypes.UUID,
+      text: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
       weight: {

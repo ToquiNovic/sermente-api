@@ -1,3 +1,4 @@
+// models/contractType.js
 import { DataTypes } from "sequelize";
 
 export default (sequelize) => {

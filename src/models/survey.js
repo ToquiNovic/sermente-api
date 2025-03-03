@@ -22,10 +22,6 @@ export default (sequelize) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
-      createdBy: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
       typeSurveyId: {
         type: DataTypes.UUID,
         allowNull: false,
