@@ -1,3 +1,4 @@
+// controllers/authController.js
 import { models } from "../database/conexion.js";
 import { comparePassword } from "../utils/cryptoUtils.js";
 import { generateToken } from "../utils/jwt.js";
@@ -25,16 +26,16 @@ export const login = async (req, res) => {
       id: user.id,
       numberDoc: user.numberDoc,
       roleId: user.roleId,
-    });
+    });  
 
     // Devolver el token junto con el ID del usuario
     res.status(200).json({
-      id: user.id,             // ID del usuario
-      accessToken: token,      // Token JWT
+      id: user.id,             
+      accessToken: token,      
       message: "Login successful",
     });
   } catch (error) {
-    console.error(error);
+    console.error(error);    
     res.status(500).json({ message: "Error logging in", error });
   }
 };

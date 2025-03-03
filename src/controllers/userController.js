@@ -4,8 +4,6 @@ import { hashPassword } from "../utils/cryptoUtils.js";
 export const createUser = async (req, res) => {
   let { numberDoc, password, roleIds } = req.body;
 
-  console.log(numberDoc + " - " + password + " - " + roleIds);
-
   if (!numberDoc || roleIds == null) {
     return res.status(400).json({ message: "El número de documento y los roles son obligatorios." });
   }

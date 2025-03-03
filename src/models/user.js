@@ -21,7 +21,7 @@ export default (sequelize) => {
         allowNull: true,
       },
       state: {
-        type: DataTypes.ENUM("active", "inactive","suspended"),
+        type: DataTypes.ENUM("active", "inactive", "suspended"),
         defaultValue: "active",
         allowNull: false,
       },
@@ -32,7 +32,7 @@ export default (sequelize) => {
       hooks: {
         beforeCreate: async (user) => {
           if (user.password) {
-            user.password = hashPassword(user.password);
+            user.password = await hashPassword(user.password); 
           }
         },
       },

@@ -5,7 +5,6 @@ import { BACKEND_PORT } from './config/index.js';
 import routes from './routes/index.js';
 import sequelize from './database/conexion.js';
 
-
 const port = BACKEND_PORT || 3000;
 const app = express();
 

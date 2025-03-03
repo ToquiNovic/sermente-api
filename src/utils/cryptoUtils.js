@@ -1,22 +1,21 @@
-import crypto from 'crypto';
+// utils/cryptoUtils.js
+import bcrypt from 'bcryptjs';
+import { HASH_SECRET } from '../config/index.js';
 
-// Obtener la clave de hash desde las variables de entorno
-const HASH_SECRET = process.env.HASH_SECRET;
+const SALT_ROUNDS = 10;
 
 if (!HASH_SECRET) {
   throw new Error("La variable de entorno HASH_SECRET no está definida.");
 }
 
-// Función para generar un hash de una contraseña
-export const hashPassword = (password) => {
-  return crypto
-    .createHmac('sha256', HASH_SECRET) 
-    .update(password)
-    .digest('hex');
+// Función para hashear una contraseña
+export const hashPassword = async (password) => {
+  const passwordWithSecret = password + HASH_SECRET;
+  return await bcrypt.hash(passwordWithSecret, SALT_ROUNDS);
 };
 
-// Función para comparar una contraseña con un hash
-export const comparePassword = (inputPassword, storedHash) => {
-  const inputHash = hashPassword(inputPassword);
-  return inputHash === storedHash;
+// Función para comparar una contraseña con un hash almacenado
+export const comparePassword = async (inputPassword, storedHash) => {
+  const passwordWithSecret = inputPassword + HASH_SECRET;
+  return await bcrypt.compare(passwordWithSecret, storedHash);
 };
