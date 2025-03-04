@@ -15,11 +15,11 @@ export default (sequelize) => {
       },
       userId: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
       },
       specialistId: {
         type: DataTypes.UUID,
-        allowNull: true,
+        allowNull: true, 
       },
     },
     {
@@ -27,34 +27,6 @@ export default (sequelize) => {
       timestamps: true,
     }
   );
-
-  // Hook antes de crear un UserCompany
-  UserCompany.beforeCreate(async (userCompany, options) => {
-    const { User, UserRole, Role } = sequelize.models;
-
-    // Buscar un usuario con rol "Especialista" o "Administrador"
-    const specialist = await User.findOne({
-      include: [
-        {
-          model: UserRole,
-          as: "roles",
-          include: [
-            {
-              model: Role,
-              as: "role",
-              where: {
-                name: ["Especialista", "Administrador"],
-              },
-            },
-          ],
-        },
-      ],
-    });
-
-    if (specialist) {
-      userCompany.specialistId = specialist.id;
-    }
-  });
 
   return UserCompany;
 };

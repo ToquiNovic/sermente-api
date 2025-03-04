@@ -2,7 +2,7 @@ import { models } from "../database/conexion.js";
 import { hashPassword } from "../utils/cryptoUtils.js"; 
 
 export const createUser = async (req, res) => {
-  let { numberDoc, password, roleNames } = req.body; // Recibe roleNames en lugar de roleIds
+  let { numberDoc, password, roleNames } = req.body;
 
   if (!numberDoc || !roleNames) {
     return res.status(400).json({ message: "El número de documento y los roles son obligatorios." });
@@ -52,7 +52,6 @@ export const createUser = async (req, res) => {
     res.status(500).json({ message: "Error al crear usuario.", error });
   }
 };
-
 
 export const getUser = async (req, res) => {
   const { id } = req.params;

@@ -50,20 +50,7 @@ export const getSurvey = async (req, res) => {
 export const getAllSurveys = async (req, res) => {
   try {
     const surveys = await models.Survey.findAll({
-      attributes: ["id", "title", "description", "deadline", "createdAt"],
       order: [["createdAt", "DESC"]],
-      include: [
-        {
-          model: models.TypeSurveys,
-          as: "typeSurvey",
-          attributes: { exclude: ["createdAt", "updatedAt"] },
-        },
-        {
-          model: models.User,
-          as: "creator",
-          attributes: ["id", "numberDoc"],
-        }
-      ],
     });
 
     res.status(200).json({ surveys });

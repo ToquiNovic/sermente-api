@@ -14,8 +14,8 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      description: {
-        type: DataTypes.TEXT,
+      nitCompany: {
+        type: DataTypes.STRING,
         allowNull: true,
       },
       legalAgent: {
@@ -28,15 +28,20 @@ export default (sequelize) => {
       },
       phone: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       email: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       urlIcon: {
         type: DataTypes.STRING,
         allowNull: true,
+      },
+      numberOfEmployees: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
       },
     },
     {
