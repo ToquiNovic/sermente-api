@@ -57,7 +57,22 @@ export const getUser = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const user = await models.User.findByPk(id);
+    const user = await models.User.findByPk(id, {
+      attributes: ["id", "numberDoc", "state"],
+      include: [
+        {
+          model: models.Role,
+          attributes: ["id", "name"],
+          as: "roles",
+          through: { attributes: [] },
+        },
+        {
+          model: models.People,
+          attributes: ["names", "surNames"],
+          as: "people",
+        }
+      ],
+    });
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
@@ -69,6 +84,7 @@ export const getUser = async (req, res) => {
     res.status(500).json({ message: "Error getting user.", error });
   }
 };
+
 
 export const getAllUsers = async (req, res) => {
   try {
