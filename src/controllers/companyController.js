@@ -1,8 +1,12 @@
 // controllers/companyController.js
 import { models } from "../database/conexion.js";
+import {
+  AUX_URL
+} from "../config/index.js";
 
 export const createCompany = async (req, res) => {
   const {
+    id,
     specialistId,
     nameCompany,
     legalAgent,
@@ -10,22 +14,22 @@ export const createCompany = async (req, res) => {
     address,
     phone,
     email,
-    urlLogo,
+    extensionFile,
     numberOfEmployees,
   } = req.body;
 
   try {
-    console.log(req.body);
-    
-
-    if (!specialistId || !nameCompany || !legalAgent || !numberOfEmployees || !nitCompany) {
+    if (!id || !specialistId || !nameCompany || !legalAgent || !numberOfEmployees || !nitCompany) {
       return res.status(400).json({
         message: "Todos los campos obligatorios deben ser completados.",
       });
     }
 
+    const urlLogo = `${AUX_URL}/companies/${id}.${extensionFile}`;
+
     // Crear la empresa
     const company = await models.Company.create({
+      id,
       name: nameCompany,
       legalAgent,
       nitCompany,
@@ -119,10 +123,6 @@ export const deleteCompany = async (req, res) => {
       if (!company) {
         return res.status(404).json({ message: "Company not found." });
       }
-
-      console.log(company);
-      
-  
       await models.UserCompany.destroy({
         where: { companyId: id },
       });
