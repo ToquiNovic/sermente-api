@@ -1,8 +1,6 @@
 // controllers/companyController.js
 import { models } from "../database/conexion.js";
-import {
-  AUX_URL
-} from "../config/index.js";
+import { AUX_URL } from "../config/index.js";
 
 export const createCompany = async (req, res) => {
   const {
@@ -19,7 +17,14 @@ export const createCompany = async (req, res) => {
   } = req.body;
 
   try {
-    if (!id || !specialistId || !nameCompany || !legalAgent || !numberOfEmployees || !nitCompany) {
+    if (
+      !id ||
+      !specialistId ||
+      !nameCompany ||
+      !legalAgent ||
+      !numberOfEmployees ||
+      !nitCompany
+    ) {
       return res.status(400).json({
         message: "Todos los campos obligatorios deben ser completados.",
       });
@@ -88,6 +93,8 @@ export const getAllCompanies = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
 
+    console.log('companies', companies)
+
     const formattedCompanies = companies.map(
       ({ id, specialistId, company }) => ({
         id,
@@ -115,24 +122,69 @@ export const getAllCompanies = async (req, res) => {
 };
 
 export const deleteCompany = async (req, res) => {
-    const { id } = req.params;
-  
-    try {
-      const company = await models.Company.findByPk(id);
-  
-      if (!company) {
-        return res.status(404).json({ message: "Company not found." });
-      }
-      await models.UserCompany.destroy({
-        where: { companyId: id },
-      });
-  
-      await company.destroy();
-  
-      res.status(200).json({ message: "Company deleted successfully." });
-    } catch (error) {
-      console.error("Error deleting company:", error);
-      res.status(500).json({ message: "Error deleting company.", error });
+  const { id } = req.params;
+
+  try {
+    const company = await models.Company.findByPk(id);
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found." });
     }
-  };
-  
+    await models.UserCompany.destroy({
+      where: { companyId: id },
+    });
+
+    await company.destroy();
+
+    res.status(200).json({ message: "Company deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting company:", error);
+    res.status(500).json({ message: "Error deleting company.", error });
+  }
+};
+
+
+export const getSurveysByCompany = async (req, res) => {
+  const { id } = req.params; // ID de la empresa
+  const { specialistId } = req.body; // ID del especialista recibido en el body
+
+  if (!specialistId) {
+    return res.status(400).json({ message: "El ID del especialista es requerido." });
+  }
+
+  try {
+    const company = await models.Company.findByPk(id);
+
+    if (!company) {
+      return res.status(404).json({ message: "Empresa no encontrada." });
+    }
+
+    // Verificar si el especialista está asociado a la empresa
+    const specialistCompany = await models.UserCompany.findOne({
+      where: { companyId: id, userId: specialistId },
+    });
+
+    if (!specialistCompany) {
+      return res.status(403).json({ message: "No tienes permisos para ver estas encuestas." });
+    }
+
+    // Obtener encuestas de la empresa
+    const surveys = await models.SurveyAssignment.findAll({
+      include: [
+        {
+          model: models.UserCompany,
+          where: { companyId: id },
+        },
+      ],
+    });
+
+    return res.status(200).json(surveys);
+  } catch (error) {
+    console.error("Error al obtener las encuestas de la empresa:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor.",
+      error: error.message,
+    });
+  }
+};
+

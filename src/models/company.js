@@ -17,6 +17,7 @@ export default (sequelize) => {
       nitCompany: {
         type: DataTypes.STRING,
         allowNull: true,
+        unique: true, // NIT debe ser único si es identificador fiscal
       },
       legalAgent: {
         type: DataTypes.STRING,
@@ -29,19 +30,31 @@ export default (sequelize) => {
       phone: {
         type: DataTypes.STRING,
         allowNull: true,
+        validate: {
+          is: /^[0-9+()\-\s]+$/i,
+        },
       },
       email: {
         type: DataTypes.STRING,
         allowNull: true,
+        validate: {
+          isEmail: true,
+        },
       },
       urlIcon: {
         type: DataTypes.STRING,
         allowNull: true,
+        validate: {
+          isUrl: true,
+        },
       },
       numberOfEmployees: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 1,
+        validate: {
+          min: 1, 
+        },
       },
     },
     {
