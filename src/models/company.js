@@ -17,7 +17,7 @@ export default (sequelize) => {
       nitCompany: {
         type: DataTypes.STRING,
         allowNull: true,
-        unique: true, // NIT debe ser único si es identificador fiscal
+        unique: true,
       },
       legalAgent: {
         type: DataTypes.STRING,

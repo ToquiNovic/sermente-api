@@ -1,6 +1,7 @@
 // controllers/companyController.js
 import { models } from "../database/conexion.js";
 import { AUX_URL } from "../config/index.js";
+import { Op } from "sequelize";
 
 export const createCompany = async (req, res) => {
   const {
@@ -72,7 +73,7 @@ export const createCompany = async (req, res) => {
 export const getAllCompanies = async (req, res) => {
   try {
     const companies = await models.UserCompany.findAll({
-      attributes: ["id", "specialistId"],
+      attributes: ["companyId", "specialistId"], // Obtén siempre el companyId y specialistId
       include: [
         {
           model: models.Company,
@@ -90,28 +91,33 @@ export const getAllCompanies = async (req, res) => {
           ],
         },
       ],
+      where: {
+        specialistId: { [Op.ne]: null }, 
+      },      
       order: [["createdAt", "DESC"]],
     });
 
-    console.log("companies", companies);
+    // Usar un Map para evitar duplicados por companyId
+    const uniqueCompanies = new Map();
 
-    const formattedCompanies = companies.map(
-      ({ id, specialistId, company }) => ({
-        id,
-        specialistId,
-        companyId: company.id,
-        name: company.name,
-        nitCompany: company.nitCompany,
-        legalAgent: company.legalAgent,
-        address: company.address,
-        phone: company.phone,
-        email: company.email,
-        urlIcon: company.urlIcon,
-        numberOfEmployees: company.numberOfEmployees,
-      })
-    );
+    companies.forEach(({ companyId, specialistId, company }) => {
+      if (!uniqueCompanies.has(companyId)) {
+        uniqueCompanies.set(companyId, {
+          id: companyId, // Ahora id es el companyId
+          specialistId, // Siempre se incluirá correctamente
+          name: company.name,
+          nitCompany: company.nitCompany,
+          legalAgent: company.legalAgent,
+          address: company.address,
+          phone: company.phone,
+          email: company.email,
+          urlIcon: company.urlIcon,
+          numberOfEmployees: company.numberOfEmployees,
+        });
+      }
+    });
 
-    return res.status(200).json({ companies: formattedCompanies });
+    return res.status(200).json({ companies: Array.from(uniqueCompanies.values()) });
   } catch (error) {
     console.error("Error al obtener las empresas:", error);
     return res.status(500).json({
