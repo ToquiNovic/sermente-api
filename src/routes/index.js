@@ -7,6 +7,7 @@ import typeSurveyRoutes from './typeSurveyRoutes.js';
 import surveyAssignmentRoutes from './surveyAssignmentRoutes.js';
 import companyRoutes from './companyRoute.js';
 import upLoadFileRoute from './upLoadFileRoute.js';
+// import userCompanyRoutes from './userCompany.routes.js';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/typeSurvey', typeSurveyRoutes);
 router.use('/surveyAssignment', surveyAssignmentRoutes);
 router.use('/company', companyRoutes);
 router.use('/uploadfile', upLoadFileRoute);
+// router.use('/userCompany', userCompanyRoutes);
 
 export default router;

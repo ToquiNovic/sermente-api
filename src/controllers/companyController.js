@@ -93,7 +93,7 @@ export const getAllCompanies = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
 
-    console.log('companies', companies)
+    console.log("companies", companies);
 
     const formattedCompanies = companies.map(
       ({ id, specialistId, company }) => ({
@@ -143,13 +143,31 @@ export const deleteCompany = async (req, res) => {
   }
 };
 
+export const getCompanyById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const company = await models.Company.findByPk(id);
+    if (!company) {
+      return res.status(404).json({ message: "Company not found." });
+    }
+    return res.status(200).json(company);
+  } catch (error) {
+    console.error("Error al obtener la empresa:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor.",
+      error: error.message,
+    });
+  }
+};
 
 export const getSurveysByCompany = async (req, res) => {
-  const { id } = req.params; // ID de la empresa
-  const { specialistId } = req.body; // ID del especialista recibido en el body
+  const { id } = req.params;
+  const { specialistId } = req.body;
 
   if (!specialistId) {
-    return res.status(400).json({ message: "El ID del especialista es requerido." });
+    return res
+      .status(400)
+      .json({ message: "El ID del especialista es requerido." });
   }
 
   try {
@@ -165,7 +183,9 @@ export const getSurveysByCompany = async (req, res) => {
     });
 
     if (!specialistCompany) {
-      return res.status(403).json({ message: "No tienes permisos para ver estas encuestas." });
+      return res
+        .status(403)
+        .json({ message: "No tienes permisos para ver estas encuestas." });
     }
 
     // Obtener encuestas de la empresa
@@ -188,3 +208,78 @@ export const getSurveysByCompany = async (req, res) => {
   }
 };
 
+export const updateCompany = async (req, res) => {
+  const { id } = req.params;
+  const {
+    name,
+    legalAgent,
+    nitCompany,
+    address,
+    phone,
+    email,
+    numberOfEmployees,
+  } = req.body;
+
+  try {
+    // Buscar la empresa por ID
+    const company = await models.Company.findByPk(id);
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found." });
+    }
+
+    // Crear un objeto con los campos que han cambiado
+    const updates = {};
+
+    // Comparar cada campo recibido con el valor actual y solo incluir los que han cambiado
+    if (name !== undefined && name !== company.name) {
+      updates.name = name;
+    }
+    if (legalAgent !== undefined && legalAgent !== company.legalAgent) {
+      updates.legalAgent = legalAgent;
+    }
+    if (nitCompany !== undefined && nitCompany !== company.nitCompany) {
+      updates.nitCompany = nitCompany;
+    }
+    if (address !== undefined && address !== company.address) {
+      updates.address = address;
+    }
+    if (phone !== undefined && phone !== company.phone) {
+      updates.phone = phone;
+    }
+    if (email !== undefined && email !== company.email) {
+      updates.email = email;
+    }
+    if (
+      numberOfEmployees !== undefined &&
+      numberOfEmployees !== company.numberOfEmployees
+    ) {
+      updates.numberOfEmployees = numberOfEmployees;
+    }
+
+    // Si no hay cambios, devolver un mensaje indicando que no se realizaron actualizaciones
+    if (Object.keys(updates).length === 0) {
+      return res.status(200).json({
+        message: "No changes detected.",
+        company,
+      });
+    }
+
+    // Actualizar solo los campos que han cambiado
+    await company.update(updates);
+
+    // Recargar el objeto para asegurarnos de que devolvemos los datos actualizados
+    await company.reload();
+
+    return res.status(200).json({
+      message: "Company updated successfully.",
+      company,
+    });
+  } catch (error) {
+    console.error("Error updating company:", error);
+    return res.status(500).json({
+      message: "Error updating company.",
+      error: error.message,
+    });
+  }
+};
