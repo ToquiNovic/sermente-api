@@ -30,12 +30,12 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          is: /^[0-9+\-() ]{7,15}$/i,
+          is: /^[+]?[\d\s-]+$/,
         },
       },
       birthday: {
         type: DataTypes.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       dependency: {
         type: DataTypes.STRING,
