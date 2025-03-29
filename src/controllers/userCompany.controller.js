@@ -77,49 +77,33 @@ export const assignUsersToCompany = async (req, res) => {
           },
         });
 
-        console.log("Persona creada:", person);
+        console.log("Persona creada/encontrada:", person.id);
 
-        // Buscar o crear el usuario en 'User'
-        let user = await models.User.findOne({
+        // Buscar o crear el usuario en 'User' y asignarle el peopleId de inmediato
+        const [user, created] = await models.User.findOrCreate({
           where: { numberDoc: documentTrimmed },
+          defaults: {
+            numberDoc: documentTrimmed,
+            peopleId: person.id,
+          },
         });
 
-        if (!user) {
-          console.log(
-            `Usuario con documento ${documentTrimmed} no encontrado, creando...`
-          );
+        if (created) {
+          console.log(`Usuario creado con documento ${documentTrimmed}`);
 
-          const [newUser, created] = await models.User.findOrCreate({
-            where: { numberDoc: documentTrimmed },
-            defaults: {
-              numberDoc: documentTrimmed,
-              // No 'role' field in User; handle via UserRole below
-            },
+          // Asignar el rol "Encuestado"
+          const [role] = await models.Role.findOrCreate({
+            where: { name: "Encuestado" },
+            defaults: { name: "Encuestado", state: true },
           });
 
-          user = newUser;
-
-          if (created) {
-            console.log(`Usuario creado con documento ${documentTrimmed}`);
-
-            // Assign the "Encuestado" role via UserRole
-            const [role] = await models.Role.findOrCreate({
-              where: { name: "Encuestado" },
-              defaults: { name: "Encuestado", state: true },
-            });
-
-            await models.UserRole.create({
-              userId: user.id,
-              roleId: role.id,
-            });
-          }
+          await models.UserRole.create({
+            userId: user.id,
+            roleId: role.id,
+          });
+        } else if (!user.peopleId) {
+          await user.update({ peopleId: person.id });
         }
-
-        // Note: No user.peopleId update, as it's not in the User model.
-        // If needed, add peopleId to User model and uncomment:
-        // if (!user.peopleId) {
-        //   await user.update({ peopleId: person.id });
-        // }
 
         // Verificar si ya está asignado a la empresa
         const userCompany = await models.UserCompany.findOne({

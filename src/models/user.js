@@ -25,6 +25,10 @@ export default (sequelize) => {
         defaultValue: "active",
         allowNull: false,
       },
+      peopleId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
     },
     {
       tableName: "users",
@@ -32,7 +36,7 @@ export default (sequelize) => {
       hooks: {
         beforeCreate: async (user) => {
           if (user.password) {
-            user.password = await hashPassword(user.password, 10); 
+            user.password = await hashPassword(user.password, 10);
           }
         },
       },

@@ -73,7 +73,7 @@ export const createCompany = async (req, res) => {
 export const getAllCompanies = async (req, res) => {
   try {
     const companies = await models.UserCompany.findAll({
-      attributes: ["companyId", "specialistId"], // Obtén siempre el companyId y specialistId
+      attributes: ["companyId", "specialistId"],
       include: [
         {
           model: models.Company,
@@ -92,8 +92,8 @@ export const getAllCompanies = async (req, res) => {
         },
       ],
       where: {
-        specialistId: { [Op.ne]: null }, 
-      },      
+        specialistId: { [Op.ne]: null },
+      },
       order: [["createdAt", "DESC"]],
     });
 
@@ -103,8 +103,8 @@ export const getAllCompanies = async (req, res) => {
     companies.forEach(({ companyId, specialistId, company }) => {
       if (!uniqueCompanies.has(companyId)) {
         uniqueCompanies.set(companyId, {
-          id: companyId, // Ahora id es el companyId
-          specialistId, // Siempre se incluirá correctamente
+          id: companyId,
+          specialistId,
           name: company.name,
           nitCompany: company.nitCompany,
           legalAgent: company.legalAgent,
@@ -117,7 +117,9 @@ export const getAllCompanies = async (req, res) => {
       }
     });
 
-    return res.status(200).json({ companies: Array.from(uniqueCompanies.values()) });
+    return res
+      .status(200)
+      .json({ companies: Array.from(uniqueCompanies.values()) });
   } catch (error) {
     console.error("Error al obtener las empresas:", error);
     return res.status(500).json({
@@ -285,6 +287,66 @@ export const updateCompany = async (req, res) => {
     console.error("Error updating company:", error);
     return res.status(500).json({
       message: "Error updating company.",
+      error: error.message,
+    });
+  }
+};
+
+export const getUsersByCompany = async (req, res) => {
+  const { id } = req.params;
+  const { specialistId } = req.body;
+
+  if (!specialistId) {
+    return res
+      .status(400)
+      .json({ message: "El ID del especialista es requerido." });
+  }
+
+  try {
+    const company = await models.Company.findByPk(id);
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found." });
+    }
+
+    // Verificar si el especialista está asociado a la empresa
+    const specialistCompany = await models.UserCompany.findOne({
+      where: { companyId: id, userId: specialistId },
+    });
+
+    if (!specialistCompany) {
+      return res
+        .status(403)
+        .json({ message: "No tienes permisos para ver estos usuarios." });
+    }
+
+    // Obtener usuarios de la empresa
+    const users = await models.UserCompany.findAll({
+      where: { companyId: id },
+      attributes: ["id", "companyId", "specialistId"],
+      include: [
+        {
+          model: models.User,
+          as: "user", 
+          include: [
+            {
+              model: models.People,
+              as: "people",
+              attributes: ["id", "names", "surNames", "phone", "email"],
+            },
+          ],
+          attributes: ["id", "numberDoc"],
+        },
+      ],
+    });
+
+    console.log(users);
+
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error("Error al obtener los usuarios de la empresa:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor.",
       error: error.message,
     });
   }

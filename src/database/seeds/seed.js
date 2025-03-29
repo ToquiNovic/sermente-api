@@ -24,6 +24,17 @@ const seedDatabase = async () => {
     ]);
     console.log('Roles seeded.');
 
+    // Crear Persona para el Administrador
+    const adminPerson = await models.People.create({
+      id: crypto.randomUUID(),
+      names: 'Admin',
+      surNames: 'User',
+      email: 'admin@example.com',
+      phone: '1234567890',
+      dependency: 'Administración',
+      positionCompany: 'Administrador',
+    });
+    
     // Crear Usuario Administrador
     const adminRole = roles.find(role => role.name === 'Administrador');
     const hashedPassword = await hashPassword('123456');
@@ -33,6 +44,7 @@ const seedDatabase = async () => {
       numberDoc: '1006458608',
       password: hashedPassword,
       roleId: adminRole.id,
+      peopleId: adminPerson.id, // Asignar el peopleId
     });
     console.log('Admin user seeded.');
 

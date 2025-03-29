@@ -6,6 +6,7 @@ import {
   getSurveysByCompany,
   getCompanyById,
   updateCompany,
+  getUsersByCompany,
 } from "../controllers/companyController.js";
 import { assignUsersToCompany } from "../controllers/userCompany.controller.js";
 
@@ -18,5 +19,6 @@ router.get("/:id/surveys", getSurveysByCompany);
 router.delete("/:id", deleteCompany);
 router.post("/:id/assign", assignUsersToCompany);
 router.patch("/:id", updateCompany);
+router.post("/:id/users", getUsersByCompany);
 
 export default router;
