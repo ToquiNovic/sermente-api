@@ -20,7 +20,11 @@ export default (sequelize) => {
       completed: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
-      },  
+      },
+      deadline: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       tableName: "survey_assignments",

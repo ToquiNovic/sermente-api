@@ -17,11 +17,7 @@ export default (sequelize) => {
       description: {
         type: DataTypes.TEXT,
         allowNull: true,
-      },
-      deadline: {
-        type: DataTypes.DATE,
-        allowNull: true,
-      },
+      }
     },
     {
       tableName: 'surveys',
