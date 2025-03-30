@@ -1,41 +1,66 @@
-// controllers/authController.js
 import { models } from "../database/conexion.js";
 import { comparePassword } from "../utils/cryptoUtils.js";
 import { generateToken } from "../utils/jwt.js";
 
 export const login = async (req, res) => {
-  const { numberDoc, password } = req.body;
+  const { numberDoc, password, isSpecialist } = req.body;
 
   try {
-    // Buscar al usuario en la base de datos
+    if (typeof isSpecialist !== "boolean") {
+      return res.status(400).json({ message: "El campo 'isSpecialist' es requerido y debe ser un booleano" });
+    }
+
     const user = await models.User.findOne({ where: { numberDoc } });
-
-    // Si no existe el usuario, devolver un error 404
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    // Verificar la contraseña usando crypto
-    const isMatch = comparePassword(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
+    const userRole = await models.UserRole.findOne({
+      where: {
+        userId: user.id,
+        state: true, 
+      },
+    });
+
+    if (!userRole) {
+      return res.status(403).json({ message: "No se encontró un rol activo para este usuario" });
     }
 
-    // Generar el token JWT
+    const respondentRole = await models.Role.findOne({ where: { name: "Encuestado", state: true } });
+    if (!respondentRole) {
+      return res.status(500).json({ message: "Error en la configuración de roles en el servidor" });
+    }
+
+    const RESPONDENT_ROLE_ID = respondentRole.id;
+    const isRespondent = userRole.roleId === RESPONDENT_ROLE_ID;
+
+    if (!isRespondent || isSpecialist) {
+      if (!password) {
+        return res.status(400).json({ message: "Las credenciales de los especialistas son obligatorias" });
+      }
+      const isMatch = comparePassword(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Credenciales inválidas" });
+      }
+    }
+
+    if (isRespondent && isSpecialist) {
+      return res.status(403).json({ message: "Los encuestados no pueden iniciar sesión como especialistas" });
+    }
+
     const token = generateToken({
       id: user.id,
       numberDoc: user.numberDoc,
-      roleId: user.roleId,
-    });  
+      roleId: userRole.roleId,
+    });
 
-    // Devolver el token junto con el ID del usuario
     res.status(200).json({
-      id: user.id,             
-      accessToken: token,      
-      message: "Login successful",
+      id: user.id,
+      accessToken: token,
+      message: "Inicio de sesión exitoso",
     });
   } catch (error) {
-    console.error(error);    
-    res.status(500).json({ message: "Error logging in", error });
+    console.error(error);
+    res.status(500).json({ message: "Error al iniciar sesión", error });
   }
 };
