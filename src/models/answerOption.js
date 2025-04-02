@@ -17,10 +17,6 @@ export default (sequelize) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      surveyAssignmentId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
     },
    {
       tableName: "answer_options",

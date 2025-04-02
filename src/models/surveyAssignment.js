@@ -13,16 +13,20 @@ export default (sequelize) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      surveyId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
       completed: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
       deadline: {
         type: DataTypes.DATE,
+        allowNull: true,
+      },
+      answerOptionId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
+      reportId: {
+        type: DataTypes.UUID,
         allowNull: true,
       },
     },

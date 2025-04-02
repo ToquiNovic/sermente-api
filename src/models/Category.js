@@ -18,6 +18,10 @@ export default (sequelize) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      surveyId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
     },
     {
       tableName: 'categories',

@@ -71,7 +71,7 @@ export const createCompany = async (req, res) => {
 };
 
 export const getAllCompanies = async (req, res) => {
-  try {
+  try {    
     const companies = await models.UserCompany.findAll({
       attributes: ["companyId", "specialistId"],
       include: [

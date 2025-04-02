@@ -74,21 +74,10 @@ export default (sequelize) => {
     foreignKey: "economyConfigId",
     as: "economyConfig",
   });
-  
+
   models.Economy.belongsTo(models.EconomyConfig, {
     foreignKey: "economyConfigId",
     as: "economyConfig",
-  });
-
-  // Relacionar Report y Survey
-  models.Report.belongsTo(models.Survey, {
-    foreignKey: "surveyId",
-    as: "survey",
-  });
-
-  models.Survey.hasMany(models.Report, {
-    foreignKey: "surveyId",
-    as: "reports",
   });
 
   // Relacionar AnswerOption y Answer
@@ -252,17 +241,14 @@ export default (sequelize) => {
     as: "users",
   });
 
-  // Relacionar Survey y UserCompany
-  models.Survey.belongsToMany(models.UserCompany, {
-    through: models.SurveyAssignment,
-    foreignKey: "surveyId",
-    as: "assignedUserCompanies",
+  // Relacionar Survey y Category
+  models.Category.hasMany(models.Survey, {
+    foreignKey: "categoryId",
+    as: "surveys",
   });
-
-  models.UserCompany.belongsToMany(models.Survey, {
-    through: models.SurveyAssignment,
-    foreignKey: "userCompanyId",
-    as: "assignedSurveys",
+  models.Survey.belongsTo(models.Category, {
+    foreignKey: "categoryId",
+    as: "category",
   });
 
   // Relacionar Category y SubCategory
@@ -295,14 +281,35 @@ export default (sequelize) => {
     as: "question",
   });
 
-  // Relacionar SurveyAssignment y AnswerOption
-  models.SurveyAssignment.hasMany(models.AnswerOption, {
-    foreignKey: "surveyAssignmentId",
-    as: "answerOptions",
+  // Relacionar SurveyAssignment y UserCompany
+  models.UserCompany.hasMany(models.SurveyAssignment, {
+    foreignKey: "userCompanyId",
+    as: "surveyAssignments",
   });
-  models.AnswerOption.belongsTo(models.SurveyAssignment, {
-    foreignKey: "surveyAssignmentId",
-    as: "surveyAssignment",
+  models.SurveyAssignment.belongsTo(models.UserCompany, {
+    foreignKey: "userCompanyId",
+    as: "userCompany",
+  });
+
+  // Relacionar SurveyAssignment y AnswerOption
+  models.AnswerOption.hasMany(models.SurveyAssignment, {
+    foreignKey: "answerOptionId",
+    as: "surveyAssignments",
+  });
+
+  models.SurveyAssignment.belongsTo(models.AnswerOption, {
+    foreignKey: "answerOptionId",
+    as: "answerOption",
+  });
+
+  // Relacionar SurveyAssignment y Report
+  models.Report.hasMany(models.SurveyAssignment, {
+    foreignKey: "reportId",
+    as: "surveyAssignments",
+  });
+  models.SurveyAssignment.belongsTo(models.Report, {
+    foreignKey: "reportId",
+    as: "report",
   });
 
   return models;
