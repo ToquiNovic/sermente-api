@@ -11,6 +11,16 @@ const seedDatabase = async () => {
     console.log('Disabling foreign key checks...');
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 0;', { raw: true });
 
+    console.log('Truncating tables...');
+    await models.UserRole.destroy({ where: {}, truncate: true });
+    await models.User.destroy({ where: {}, truncate: true });
+    await models.People.destroy({ where: {}, truncate: true });
+    await models.Role.destroy({ where: {}, truncate: true });
+    await models.Company.destroy({ where: {}, truncate: true });
+    await models.UserCompany.destroy({ where: {}, truncate: true });
+    await models.Survey.destroy({ where: {}, truncate: true });
+    await models.SurveyAssignment.destroy({ where: {}, truncate: true });
+
     console.log('Re-enabling foreign key checks...');
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;', { raw: true });
 
@@ -18,9 +28,9 @@ const seedDatabase = async () => {
 
     // Crear Roles
     const roles = await models.Role.bulkCreate([
-      { id: crypto.randomUUID(), name: 'Administrador', description: 'El rol de administrador tiene acceso a todas las funciones.', state: true },
-      { id: crypto.randomUUID(), name: 'Especialista', description: 'El rol de especialista tiene acceso a las funciones relacionadas con la encuesta.', state: true },
-      { id: crypto.randomUUID(), name: 'Encuestado', description: 'El rol de encuestado tiene acceso a las funciones relacionadas con la encuesta.', state: true },
+      { id: crypto.randomUUID(), name: 'Administrador', description: 'Acceso total', state: true },
+      { id: crypto.randomUUID(), name: 'Especialista', description: 'Acceso a encuestas', state: true },
+      { id: crypto.randomUUID(), name: 'Encuestado', description: 'Acceso limitado', state: true },
     ]);
     console.log('Roles seeded.');
 
@@ -54,22 +64,21 @@ const seedDatabase = async () => {
       roleId: adminRole.id,
     });
 
-    console.log('Admin user seeded.');
-
-    // company
+    // Crear Empresa
     const company = await models.Company.create({
       id: crypto.randomUUID(),
       name: 'SerMente',
       nitCompany: '10122012334-5',
       legalAgent: 'Daniel Toquica',
-      address: 'florencia',
+      address: 'Florencia',
       phone: '3024789450',
       email: 'j.toquica@udla.edu.co',
-      urlIcon: 'https://sermente.nyc3.cdn.digitaloceanspaces.com/companies/3a601c4e-5c22-451d-9317-69e4eb8477f7.png',
+      urlIcon: 'https://sermente.nyc3.cdn.digitaloceanspaces.com/companies/icon.png',
       numberOfEmployees: 10,
     });
 
-    await models.UserCompany.create({
+    // Asignar Usuario a la Empresa
+    const userCompany = await models.UserCompany.create({
       id: crypto.randomUUID(),
       companyId: company.id,
       userId: userAdmin.id,
@@ -77,33 +86,34 @@ const seedDatabase = async () => {
     });
 
     // Crear Encuestas
-    const companys = await models.Survey.bulkCreate([
+    const surveys = await models.Survey.bulkCreate([
       {
         id: crypto.randomUUID(),
         title: 'Encuesta Socioeconómica',
-        description: 'Primera encuesta pública obligatoria.',
+        description: 'Encuesta obligatoria',
         createdBy: userAdmin.id,
       },
       {
         id: crypto.randomUUID(),
         title: 'Encuesta Batería de Riesgo',
-        description: 'Segunda encuesta pública obligatoria.',
+        description: 'Evaluación de riesgos',
         createdBy: userAdmin.id,
       },
     ]);
-    console.log('Public surveys seeded.');
+    console.log('Surveys seeded.');
 
+    // Asignar Encuestas
     await models.SurveyAssignment.bulkCreate([
       {
         id: crypto.randomUUID(),
-        userCompanyId: companys[0].id,
-        surveyId: companys[0].id,
+        userCompanyId: userCompany.id,
+        surveyId: surveys[0].id,
         completed: false,
       },
       {
         id: crypto.randomUUID(),
-        userCompanyId: companys[1].id,
-        surveyId: companys[1].id,
+        userCompanyId: userCompany.id,
+        surveyId: surveys[1].id,
         completed: false,
       },
     ]);
