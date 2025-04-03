@@ -1,25 +1,15 @@
 import { models } from "../database/conexion.js";
 
 export const createSurvey = async (req, res) => {
-  const { title, description, deadline, typeSurveyId, createdBy } = req.body;
-
+  const { title, description } = req.body;  
   try {
-    // Verificar si el tipo de encuesta es válido
-    const typeSurvey = await models.TypeSurveys.findByPk(typeSurveyId);
-    if (!typeSurvey) {
-      return res.status(400).json({ message: "Invalid type survey." });
-    }
-
-    if (!createdBy) {
-      return res.status(400).json({ message: "User ID (createdBy) is required." });
+    if (!title) {
+      return res.status(400).json({ message: "El título es obligatorio." });
     }
 
     let survey = await models.Survey.create({
       title,
       description,
-      deadline,
-      typeSurveyId,
-      createdBy,
     });
 
     res.status(201).json({ message: "Survey created successfully.", survey });
@@ -28,7 +18,6 @@ export const createSurvey = async (req, res) => {
     res.status(500).json({ message: "Error creating survey.", error });
   }
 };
-
 
 export const getSurvey = async (req, res) => {
   const { id } = req.params;

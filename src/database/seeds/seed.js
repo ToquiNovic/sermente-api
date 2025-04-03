@@ -1,37 +1,33 @@
-// src/database/seeds/seed.js
 import sequelize from '../conexion.js';
 import initModels from '../../models/index.js';
 import { hashPassword } from '../../utils/cryptoUtils.js';
 import crypto from 'crypto';
 
 const seedDatabase = async () => {
+  const transaction = await sequelize.transaction();
   try {
     const models = initModels(sequelize);
 
-    console.log('Disabling foreign key checks...');
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0;', { raw: true });
-
     console.log('Truncating tables...');
-    await models.UserRole.destroy({ where: {}, truncate: true });
-    await models.User.destroy({ where: {}, truncate: true });
-    await models.People.destroy({ where: {}, truncate: true });
-    await models.Role.destroy({ where: {}, truncate: true });
-    await models.Company.destroy({ where: {}, truncate: true });
-    await models.UserCompany.destroy({ where: {}, truncate: true });
-    await models.Survey.destroy({ where: {}, truncate: true });
-    await models.SurveyAssignment.destroy({ where: {}, truncate: true });
-
-    console.log('Re-enabling foreign key checks...');
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;', { raw: true });
-
+    await Promise.all([
+      models.SurveyAssignment.destroy({ where: {}, truncate: { cascade: true }, transaction }),
+      models.Survey.destroy({ where: {}, truncate: { cascade: true }, transaction }),
+      models.UserCompany.destroy({ where: {}, truncate: { cascade: true }, transaction }),
+      models.Company.destroy({ where: {}, truncate: { cascade: true }, transaction }),
+      models.UserRole.destroy({ where: {}, truncate: { cascade: true }, transaction }),
+      models.User.destroy({ where: {}, truncate: { cascade: true }, transaction }),
+      models.People.destroy({ where: {}, truncate: { cascade: true }, transaction }),
+      models.Role.destroy({ where: {}, truncate: { cascade: true }, transaction })
+    ]);
     console.log('Database truncated successfully.');
 
     // Crear Roles
-    const roles = await models.Role.bulkCreate([
+    const rolesData = [
       { id: crypto.randomUUID(), name: 'Administrador', description: 'Acceso total', state: true },
       { id: crypto.randomUUID(), name: 'Especialista', description: 'Acceso a encuestas', state: true },
       { id: crypto.randomUUID(), name: 'Encuestado', description: 'Acceso limitado', state: true },
-    ]);
+    ];
+    const roles = await models.Role.bulkCreate(rolesData, { transaction });
     console.log('Roles seeded.');
 
     // Crear Persona para el Administrador
@@ -43,26 +39,24 @@ const seedDatabase = async () => {
       phone: '1234567890',
       dependency: 'Administración',
       positionCompany: 'Administrador',
-    });
-    
-    // Crear Usuario Administrador
-    const adminRole = roles.find(role => role.name === 'Administrador');
-    const hashedPassword = await hashPassword('123456');
+    }, { transaction });
 
+    // Crear Usuario Administrador
+    const hashedPassword = await hashPassword('123456');
     const userAdmin = await models.User.create({
       id: crypto.randomUUID(),
       numberDoc: '1006458608',
       password: hashedPassword,
       state: 'active',
       peopleId: adminPerson.id,
-    });
+    }, { transaction });
     console.log('Admin user seeded.');
 
     await models.UserRole.create({
       id: crypto.randomUUID(),
       userId: userAdmin.id,
-      roleId: adminRole.id,
-    });
+      roleId: roles.find(role => role.name === 'Administrador').id,
+    }, { transaction });
 
     // Crear Empresa
     const company = await models.Company.create({
@@ -73,9 +67,9 @@ const seedDatabase = async () => {
       address: 'Florencia',
       phone: '3024789450',
       email: 'j.toquica@udla.edu.co',
-      urlIcon: 'https://sermente.nyc3.cdn.digitaloceanspaces.com/companies/icon.png',
+      urlIcon: 'https://sermente.nyc3.cdn.digitaloceanspaces.com/icon.png',
       numberOfEmployees: 10,
-    });
+    }, { transaction });
 
     // Asignar Usuario a la Empresa
     const userCompany = await models.UserCompany.create({
@@ -83,7 +77,7 @@ const seedDatabase = async () => {
       companyId: company.id,
       userId: userAdmin.id,
       specialistId: userAdmin.id,
-    });
+    }, { transaction });
 
     // Crear Encuestas
     const surveys = await models.Survey.bulkCreate([
@@ -99,7 +93,7 @@ const seedDatabase = async () => {
         description: 'Evaluación de riesgos',
         createdBy: userAdmin.id,
       },
-    ]);
+    ], { transaction });
     console.log('Surveys seeded.');
 
     // Asignar Encuestas
@@ -116,13 +110,16 @@ const seedDatabase = async () => {
         surveyId: surveys[1].id,
         completed: false,
       },
-    ]);
+    ], { transaction });
     console.log('Survey assignments seeded.');
 
+    // Confirmar la transacción
+    await transaction.commit();
     console.log('Seeding completed successfully!');
     process.exit(0);
   } catch (error) {
-    console.error('Error while seeding:', error);
+    await transaction.rollback();
+    console.error('Error while seeding:', error.stack);
     process.exit(1);
   }
 };

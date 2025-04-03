@@ -242,13 +242,14 @@ export default (sequelize) => {
   });
 
   // Relacionar Survey y Category
-  models.Category.hasMany(models.Survey, {
-    foreignKey: "categoryId",
-    as: "surveys",
+  models.Category.belongsTo(models.Survey, {
+    foreignKey: "surveyId",
+    as: "survey",
   });
-  models.Survey.belongsTo(models.Category, {
-    foreignKey: "categoryId",
-    as: "category",
+
+  models.Survey.hasMany(models.Category, {
+    foreignKey: "surveyId",
+    as: "categories",
   });
 
   // Relacionar Category y SubCategory
