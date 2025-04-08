@@ -1,18 +1,26 @@
 import { models } from "../database/conexion.js";
 
 export const createSurvey = async (req, res) => {
-  const { title, description } = req.body;  
+  console.log("🚀 createSurvey endpoint reached");
   try {
-    if (!title) {
-      return res.status(400).json({ message: "El título es obligatorio." });
+    const { id, title, description } = req.body;
+    console.log("Creating survey with ID:", id);  
+    console.log("Creating survey with title:", title);
+    console.log("Creating survey with description:", description);
+    if (!id || !title) {
+      return res.status(400).json({ message: "ID y título son obligatorios." });
     }
 
-    let survey = await models.Survey.create({
+    const survey = await models.Survey.create({
+      id, // usar el ID que viene del frontend
       title,
       description,
     });
 
-    res.status(201).json({ message: "Survey created successfully.", survey });
+    return res.status(201).json({
+      message: "Survey created successfully.",
+      id: survey.id,
+    });
   } catch (error) {
     console.error("Error creating survey:", error);
     res.status(500).json({ message: "Error creating survey.", error });
