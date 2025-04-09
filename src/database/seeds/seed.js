@@ -85,13 +85,11 @@ const seedDatabase = async () => {
         id: crypto.randomUUID(),
         title: 'Encuesta Socioeconómica',
         description: 'Encuesta obligatoria',
-        createdBy: userAdmin.id,
       },
       {
         id: crypto.randomUUID(),
         title: 'Encuesta Batería de Riesgo',
         description: 'Evaluación de riesgos',
-        createdBy: userAdmin.id,
       },
     ], { transaction });
     console.log('Surveys seeded.');

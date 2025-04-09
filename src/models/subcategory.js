@@ -1,3 +1,4 @@
+// models/SubCategory.js
 import { DataTypes } from 'sequelize';
 
 export default (sequelize) => {
@@ -11,6 +12,10 @@ export default (sequelize) => {
       },
       name: {
         type: DataTypes.STRING,
+        allowNull: false,
+      },
+      categoryId: {
+        type: DataTypes.UUID,
         allowNull: false,
       },
     },

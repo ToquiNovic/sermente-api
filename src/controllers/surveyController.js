@@ -1,29 +1,62 @@
-import { models } from "../database/conexion.js";
+import { models, sequelize } from "../database/conexion.js";
 
 export const createSurvey = async (req, res) => {
-  console.log("🚀 createSurvey endpoint reached");
+  const { id, title, description, categories, subcategories } = req.body;
+
+  if (!id || !title) {
+    return res.status(400).json({ message: "ID y título son obligatorios." });
+  }
+
+  const t = await sequelize.transaction();
+
   try {
-    const { id, title, description } = req.body;
-    console.log("Creating survey with ID:", id);  
-    console.log("Creating survey with title:", title);
-    console.log("Creating survey with description:", description);
-    if (!id || !title) {
-      return res.status(400).json({ message: "ID y título son obligatorios." });
+    // 1. Crear la encuesta
+    const survey = await models.Survey.create(
+      { id, title, description },
+      { transaction: t }
+    );
+
+    // 2. Crear categorías asociadas
+    const createdCategories = await Promise.all(
+      categories.map((cat) =>
+        models.Category.create(
+          {
+            id: cat.id,
+            name: cat.name,
+            description: cat.description,
+            surveyId: survey.id,
+          },
+          { transaction: t }
+        )
+      )
+    );
+
+    for (const cat of createdCategories) {
+      const subs = subcategories?.[cat.id] || [];
+      for (const sub of subs) {
+        await models.SubCategory.create(
+          {
+            id: sub.id,
+            name: sub.name,
+            categoryId: cat.id,
+          },
+          { transaction: t }
+        );
+      }
     }
 
-    const survey = await models.Survey.create({
-      id, // usar el ID que viene del frontend
-      title,
-      description,
-    });
+    await t.commit();
 
     return res.status(201).json({
-      message: "Survey created successfully.",
+      message: "Encuesta creada exitosamente.",
       id: survey.id,
     });
   } catch (error) {
-    console.error("Error creating survey:", error);
-    res.status(500).json({ message: "Error creating survey.", error });
+    await t.rollback();
+    console.error("❌ Error creating survey with categories:", error);
+    return res
+      .status(500)
+      .json({ message: "Error al crear la encuesta.", error });
   }
 };
 
