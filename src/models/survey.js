@@ -17,7 +17,12 @@ export default (sequelize) => {
       description: {
         type: DataTypes.TEXT,
         allowNull: true,
-      }
+      },
+      status: {
+        type: DataTypes.STRING,
+        defaultValue: "active",
+        allowNull: false,
+      },
     },
     {
       tableName: 'surveys',

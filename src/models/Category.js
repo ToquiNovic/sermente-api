@@ -1,9 +1,9 @@
 // models/Category.js
-import { DataTypes } from 'sequelize';
+import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
   const Category = sequelize.define(
-    'Category',
+    "Category",
     {
       id: {
         type: DataTypes.UUID,
@@ -22,9 +22,14 @@ export default (sequelize) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
+      status: {
+        type: DataTypes.STRING,
+        defaultValue: "active",
+        allowNull: false,
+      },
     },
     {
-      tableName: 'categories',
+      tableName: "categories",
       timestamps: true,
     }
   );

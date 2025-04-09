@@ -1,7 +1,12 @@
 import sequelize from '../conexion.js';
 import initModels from '../../models/index.js';
 import { hashPassword } from '../../utils/cryptoUtils.js';
+import dotenv from 'dotenv';
 import crypto from 'crypto';
+
+dotenv.config();
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 const seedDatabase = async () => {
   const transaction = await sequelize.transaction();
@@ -42,7 +47,7 @@ const seedDatabase = async () => {
     }, { transaction });
 
     // Crear Usuario Administrador
-    const hashedPassword = await hashPassword('123456');
+    const hashedPassword = await hashPassword(ADMIN_PASSWORD);
     const userAdmin = await models.User.create({
       id: crypto.randomUUID(),
       numberDoc: '1006458608',

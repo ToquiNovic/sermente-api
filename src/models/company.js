@@ -53,8 +53,13 @@ export default (sequelize) => {
         allowNull: false,
         defaultValue: 1,
         validate: {
-          min: 1, 
+          min: 1,
         },
+      },
+      status: {
+        type: DataTypes.STRING,
+        defaultValue: "active",
+        allowNull: false,
       },
     },
     {

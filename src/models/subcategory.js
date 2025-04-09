@@ -1,9 +1,9 @@
 // models/SubCategory.js
-import { DataTypes } from 'sequelize';
+import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
   const SubCategory = sequelize.define(
-    'SubCategory',
+    "SubCategory",
     {
       id: {
         type: DataTypes.UUID,
@@ -18,9 +18,14 @@ export default (sequelize) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
+      status: {
+        type: DataTypes.STRING,
+        defaultValue: "active",
+        allowNull: false,
+      },
     },
     {
-      tableName: 'subcategories',
+      tableName: "subcategories",
       timestamps: true,
     }
   );
