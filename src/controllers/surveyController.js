@@ -1,4 +1,5 @@
 import { models, sequelize } from "../database/conexion.js";
+import { Op } from "sequelize";
 
 export const createSurvey = async (req, res) => {
   const { id, title, description, categories, subcategories } = req.body;
@@ -129,56 +130,59 @@ export const updateSurvey = async (req, res) => {
 export const deleteSurvey = async (req, res) => {
   const { id } = req.params;
 
-  try {
-    const survey = await models.Survey.findByPk(id);
-
-    if (!survey) {
-      return res.status(404).json({ message: "Survey not found." });
-    }
-
-    await survey.destroy();
-
-    res.status(200).json({ message: "Survey deleted successfully." });
-  } catch (error) {
-    console.error("Error deleting survey:", error);
-    res.status(500).json({ message: "Error deleting survey.", error });
+  if (!id) {
+    return res.status(400).json({ message: "ID de la encuesta es obligatorio." });
   }
-};
 
-export const addDependencies = async (req, res) => {
-  const { id, dependencies } = req.body;
+  const t = await sequelize.transaction();
 
   try {
-    const survey = await models.Survey.findByPk(id);
+    // 1. Buscar la encuesta
+    const survey = await models.Survey.findByPk(id, { transaction: t });
 
     if (!survey) {
-      return res.status(404).json({ message: "Survey not found." });
+      await t.rollback();
+      return res.status(404).json({ message: "Encuesta no encontrada." });
     }
 
-    await survey.addDependencies(dependencies);
+    // 2. Buscar las categorías de la encuesta
+    const categories = await models.Category.findAll({
+      where: { surveyId: id },
+      transaction: t,
+    });
 
-    res.status(200).json({ message: "Dependencies added successfully." });
-  } catch (error) {
-    console.error("Error adding dependencies:", error);
-    res.status(500).json({ message: "Error adding dependencies.", error });
-  }
-};
+    const categoryIds = categories.map((cat) => cat.id);
 
-export const removeDependencies = async (req, res) => {
-  const { id, dependencies } = req.body;
-
-  try {
-    const survey = await models.Survey.findByPk(id);
-
-    if (!survey) {
-      return res.status(404).json({ message: "Survey not found." });
+    // 3. Buscar y eliminar subcategorías de esas categorías
+    if (categoryIds.length > 0) {
+      await models.SubCategory.destroy({
+        where: {
+          categoryId: {
+            [Op.in]: categoryIds,
+          },
+        },
+        transaction: t,
+      });
     }
 
-    await survey.removeDependencies(dependencies);
+    // 4. Eliminar las categorías
+    await models.Category.destroy({
+      where: { surveyId: id },
+      transaction: t,
+    });
 
-    res.status(200).json({ message: "Dependencies removed successfully." });
+    // 5. Eliminar la encuesta
+    await models.Survey.destroy({
+      where: { id },
+      transaction: t,
+    });
+
+    await t.commit();
+
+    return res.status(200).json({ message: "Encuesta eliminada exitosamente." });
   } catch (error) {
-    console.error("Error removing dependencies:", error);
-    res.status(500).json({ message: "Error removing dependencies.", error });
+    await t.rollback();
+    console.error("❌ Error deleting survey:", error);
+    return res.status(500).json({ message: "Error al eliminar la encuesta.", error });
   }
 };
