@@ -156,3 +156,22 @@ export const updateSubCategory = async (req, res) => {
     res.status(500).json({ message: "Error al actualizar la subcategoría." });
   }
 };
+
+export const deleteSubCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const subcategory = await models.SubCategory.findByPk(id);
+
+    if (!subcategory) {
+      return res.status(404).json({ message: "No se encontró la subcategoría" });
+    }
+
+    await subcategory.destroy();
+
+    res.status(200).json({ message: "Subcategoría eliminada con éxito" });
+  } catch (error) {
+    console.error("Error al eliminar la subcategoría:", error);
+    res.status(500).json({ message: "Error al eliminar la subcategoría." });
+  }
+};
