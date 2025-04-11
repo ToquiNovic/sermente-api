@@ -13,6 +13,10 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      position: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       subcategoryId: {
         type: DataTypes.UUID,
         allowNull: false,

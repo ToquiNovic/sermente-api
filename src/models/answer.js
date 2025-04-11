@@ -13,11 +13,7 @@ export default (sequelize) => {
       text: {
         type: DataTypes.STRING,
         allowNull: false,
-      },
-      weight: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
-      },
+      }
     },
     {
       tableName: 'answers',

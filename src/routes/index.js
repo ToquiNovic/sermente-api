@@ -8,6 +8,7 @@ import companyRoutes from './companyRoute.js';
 import upLoadFileRoute from './upLoadFileRoute.js';
 import categoryRoutes from './category.routes.js';
 import subCategoryRoutes from './subCategory.routes.js';
+import questionRoutes from './question.routes.js';
 // import userCompanyRoutes from './userCompany.routes.js';
 
 const router = Router();
@@ -21,6 +22,7 @@ router.use('/company', companyRoutes);
 router.use('/uploadfile', upLoadFileRoute);
 router.use('/category', categoryRoutes);
 router.use('/subcategory', subCategoryRoutes);
+router.use('/question', questionRoutes);
 // router.use('/userCompany', userCompanyRoutes);
 
 export default router;
