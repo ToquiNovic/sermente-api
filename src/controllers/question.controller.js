@@ -214,3 +214,95 @@ export const deleteQuestion = async (req, res) => {
     return res.status(500).json({ message: "Error interno del servidor." });
   }
 };
+
+export const getQuestionBySurveyId = async (req, res) => {
+  try {
+    const { surveyId } = req.params;
+
+    if (!surveyId || typeof surveyId !== "string" || surveyId.trim() === "") {
+      return res.status(400).json({
+        error:
+          "La identificación de la encuesta es requerida y debe ser un texto válido.",
+      });
+    }
+
+    const questions = await models.Category.findAll({
+      where: {
+        surveyId: surveyId,
+      },
+      include: [
+        {
+          model: models.SubCategory,
+          as: "subcategories",
+          attributes: ["id", "name", "status", "categoryId"],
+          include: [
+            {
+              model: models.Question,
+              as: "questions",
+              include: [
+                {
+                  model: models.Option,
+                  as: "options",
+                  attributes: ["id", "text", "weight"],
+                },
+              ],
+              attributes: ["id", "text", "position", "subcategoryId"],
+            },
+          ],
+        },
+      ],
+      attributes: ["id", "name", "description", "surveyId", "status"],
+    });
+
+    if (!questions || questions.length === 0) {
+      return res.status(404).json({ message: "Preguntas no encontradas." });
+    }
+
+    return res.status(200).json({
+      message: "Preguntas obtenidas con éxito",
+      questions,
+    });
+  } catch (error) {
+    console.error("Error al obtener las preguntas:", error);
+    return res
+      .status(500)
+      .json({ error: "Error interno del servidor al obtener las preguntas." });
+  }
+};
+
+export const updateQuestionPosition = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { position } = req.body;
+    const question = await models.Question.findByPk(id);
+
+    console.log("id", id);
+    console.log("position", position);    
+
+    console.log("question", question);
+    
+
+    if (!question) {
+      return res.status(404).json({ message: "Pregunta no encontrada." });
+    }
+
+    if (position < 0) {
+      return res.status(400).json({
+        error: "La posición de la pregunta debe ser un número positivo.",
+      });
+    }
+
+    question.position = position;
+
+    await question.save();
+
+    res
+      .status(200)
+      .json({ message: "Posición actualizada con éxito", question });
+  } catch (error) {
+    console.error("Error al actualizar la posición de la pregunta:", error);
+    return res
+      .status(500)
+      .json({ error: "Error interno del servidor al actualizar la posición." });
+  }
+};
