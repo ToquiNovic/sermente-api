@@ -88,7 +88,8 @@ export const updateQuestion = async (req, res) => {
 
 export const createQuestion = async (req, res) => {
   try {
-    const { subCategoryId, text, position, options } = req.body;
+    const { subCategoryId, text, position, isMultipleChoice, options } =
+      req.body;
     console.log("Request body:", req.body);
 
     if (
@@ -116,25 +117,48 @@ export const createQuestion = async (req, res) => {
       });
     }
 
-    if (!options || !Array.isArray(options) || options.length === 0) {
+    // Validar si ya existe una pregunta con esa posición en la misma subcategoría
+    const existingQuestion = await models.Question.findOne({
+      where: {
+        subcategoryId: subCategoryId,
+        position: position,
+      },
+    });
+
+    if (existingQuestion) {
       return res.status(400).json({
-        error:
-          "Las opciones de la pregunta son requeridas y deben ser un arreglo válido.",
+        error: `La posición ${position} ya está ocupada por otra pregunta. Por favor, elige otra posición.`,
       });
     }
 
-    // Validar que cada opción tenga text y weight
-    for (const option of options) {
-      if (
-        !option.text ||
-        typeof option.text !== "string" ||
-        option.text.trim() === "" ||
-        typeof option.weight !== "number"
-      ) {
+    // Preparar opciones
+    let finalOptions = [];
+
+    if (isMultipleChoice) {
+      if (!options || !Array.isArray(options) || options.length === 0) {
         return res.status(400).json({
-          error: "Cada opción debe tener un texto válido y un peso numérico.",
+          error:
+            "Las opciones de la pregunta son requeridas y deben ser un arreglo válido.",
         });
       }
+
+      // Validar que cada opción tenga text y weight
+      for (const option of options) {
+        if (
+          !option.text ||
+          typeof option.text !== "string" ||
+          option.text.trim() === "" ||
+          typeof option.weight !== "number"
+        ) {
+          return res.status(400).json({
+            error: "Cada opción debe tener un texto válido y un peso numérico.",
+          });
+        }
+      }
+
+      finalOptions = options;
+    } else {
+      finalOptions = [{ text: "pregunta abierta", weight: 0 }];
     }
 
     const question = await models.Question.create({
@@ -144,7 +168,7 @@ export const createQuestion = async (req, res) => {
     });
 
     await models.Option.bulkCreate(
-      options.map((option) => ({
+      finalOptions.map((option) => ({
         text: option.text,
         weight: option.weight,
         questionId: question.id,
