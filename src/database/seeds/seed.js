@@ -93,7 +93,12 @@ const seedDatabase = async () => {
       },
       {
         id: crypto.randomUUID(),
-        title: 'Encuesta Batería de Riesgo',
+        title: 'Encuesta Forma A',
+        description: 'Evaluación de riesgos',
+      },
+      {
+        id: crypto.randomUUID(),
+        title: 'Encuesta Forma B',
         description: 'Evaluación de riesgos',
       },
     ], { transaction });

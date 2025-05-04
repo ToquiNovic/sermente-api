@@ -27,13 +27,10 @@ export const getQuestions = async (req, res) => {
       ],
     });
 
-    if (!questions || questions.length === 0) {
-      return res.status(404).json({ message: "Preguntas no encontradas." });
-    }
-
+    // ✅ Si no hay preguntas, se retorna un array vacío con status 200
     return res.status(200).json({
       message: "Preguntas obtenidas con éxito",
-      questions,
+      questions: questions || [],
     });
   } catch (error) {
     console.error("Error al obtener las preguntas:", error);
@@ -277,10 +274,9 @@ export const updateQuestionPosition = async (req, res) => {
     const question = await models.Question.findByPk(id);
 
     console.log("id", id);
-    console.log("position", position);    
+    console.log("position", position);
 
     console.log("question", question);
-    
 
     if (!question) {
       return res.status(404).json({ message: "Pregunta no encontrada." });
