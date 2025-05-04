@@ -90,7 +90,6 @@ export const createQuestion = async (req, res) => {
   try {
     const { subCategoryId, text, position, isMultipleChoice, options } =
       req.body;
-    console.log("Request body:", req.body);
 
     if (
       !subCategoryId ||
