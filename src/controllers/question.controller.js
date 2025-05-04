@@ -109,14 +109,13 @@ export const createQuestion = async (req, res) => {
       });
     }
 
-    if (!position || typeof position !== "number" || position < 0) {
+    if (typeof position !== "number" || position <= 0) {
       return res.status(400).json({
         error:
-          "La posición de la pregunta es requerida y debe ser un número positivo.",
+          "La posición de la pregunta es requerida y debe ser un número mayor a 0.",
       });
     }
 
-    // Validar si ya existe una pregunta con esa posición en la misma subcategoría
     const existingQuestion = await models.Question.findOne({
       where: {
         subcategoryId: subCategoryId,
@@ -130,7 +129,6 @@ export const createQuestion = async (req, res) => {
       });
     }
 
-    // Preparar opciones
     let finalOptions = [];
 
     if (isMultipleChoice) {
@@ -141,7 +139,6 @@ export const createQuestion = async (req, res) => {
         });
       }
 
-      // Validar que cada opción tenga text y weight
       for (const option of options) {
         if (
           !option.text ||
@@ -179,9 +176,9 @@ export const createQuestion = async (req, res) => {
       .json({ message: "Pregunta creada con éxito", question });
   } catch (error) {
     console.error("Error al crear la pregunta:", error);
-    return res
-      .status(500)
-      .json({ error: "Error interno del servidor al crear la pregunta." });
+    return res.status(500).json({
+      error: "Error interno del servidor al crear la pregunta.",
+    });
   }
 };
 
