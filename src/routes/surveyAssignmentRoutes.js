@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import {
-  createUserWithPeople,
+  assignSurveyToUser,
 } from '../controllers/surveyAssignmentController.js';
 
 const router = Router();
 
-router.post('/', createUserWithPeople);
+router.post('/:companyId', assignSurveyToUser);
 
 export default router;

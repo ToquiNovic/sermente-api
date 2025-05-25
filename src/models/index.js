@@ -252,6 +252,17 @@ export default (sequelize) => {
     as: "categories",
   });
 
+  // Relacionar Survey y SurveyAssignment
+  models.Survey.hasMany(models.SurveyAssignment, {
+    foreignKey: "surveyId",
+    as: "surveyAssignments",
+  });
+
+  models.SurveyAssignment.belongsTo(models.Survey, {
+    foreignKey: "surveyId",
+    as: "survey",
+  });
+
   // Relacionar Category y SubCategory
   models.Category.hasMany(models.SubCategory, {
     foreignKey: "categoryId",
@@ -290,17 +301,6 @@ export default (sequelize) => {
   models.SurveyAssignment.belongsTo(models.UserCompany, {
     foreignKey: "userCompanyId",
     as: "userCompany",
-  });
-
-  // Relacionar SurveyAssignment y AnswerOption
-  models.AnswerOption.hasMany(models.SurveyAssignment, {
-    foreignKey: "answerOptionId",
-    as: "surveyAssignments",
-  });
-
-  models.SurveyAssignment.belongsTo(models.AnswerOption, {
-    foreignKey: "answerOptionId",
-    as: "answerOption",
   });
 
   // Relacionar SurveyAssignment y Report

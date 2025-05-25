@@ -46,7 +46,7 @@ export default (sequelize) => {
         allowNull: true,
       },
       genderId: {
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
         allowNull: true,
       },
       salaryTypeId: {

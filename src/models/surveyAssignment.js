@@ -21,7 +21,7 @@ export default (sequelize) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
-      answerOptionId: {
+      surveyId: {
         type: DataTypes.UUID,
         allowNull: true,
       },

@@ -1,16 +1,16 @@
 import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
-  const Gender = sequelize.define(
+  return sequelize.define(
     "Gender",
     {
       id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
       },
       name: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: false,
       },
     },
@@ -18,6 +18,5 @@ export default (sequelize) => {
       tableName: "genders",
       timestamps: false,
     }
-  )
-  return Gender;
-}
+  );
+};

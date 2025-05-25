@@ -17,6 +17,10 @@ export default (sequelize) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
+      userCompanyId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
     },
    {
       tableName: "answer_options",

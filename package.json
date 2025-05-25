@@ -1,5 +1,5 @@
 {
-  "name": "serMente-api",
+  "name": "sermente-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,8 @@
     "start": "node src/app.js",
     "dev": "node --watch src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seed": "node src/database/seeds/seed.js"
+    "seed:init": "node src/database/seeds/init.js",
+    "seed:survey": "node src/database/seeds/survey.js"
   },
   "keywords": [],
   "author": "",
