@@ -1,9 +1,9 @@
-// models/SubCategory.js
+// domainModel.js
 import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
-  const SubCategory = sequelize.define(
-    "SubCategory",
+  const Domain = sequelize.define(
+    "domain",
     {
       id: {
         type: DataTypes.UUID,
@@ -14,7 +14,11 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      categoryId: {
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      factorId: {
         type: DataTypes.UUID,
         allowNull: false,
       },
@@ -24,11 +28,13 @@ export default (sequelize) => {
         allowNull: false,
       },
     },
-    {
-      tableName: "subcategories",
+
+   
+     {
+      tableName: "domain",
       timestamps: true,
     }
   );
 
-  return SubCategory;
+  return Domain;
 };

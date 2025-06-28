@@ -1,9 +1,9 @@
-// models/Category.js
+// dimensionModel.js
 import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
-  const Category = sequelize.define(
-    "Category",
+  const Dimension = sequelize.define(
+    "dimension",
     {
       id: {
         type: DataTypes.UUID,
@@ -14,11 +14,7 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      description: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      surveyId: {
+      domainId: {
         type: DataTypes.UUID,
         allowNull: false,
       },
@@ -29,10 +25,10 @@ export default (sequelize) => {
       },
     },
     {
-      tableName: "categories",
+      tableName: "dimension",
       timestamps: true,
     }
   );
 
-  return Category;
+  return Dimension;
 };

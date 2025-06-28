@@ -6,8 +6,7 @@ import surveyRoutes from './surveyRoutes.js';
 import surveyAssignmentRoutes from './surveyAssignmentRoutes.js';
 import companyRoutes from './companyRoute.js';
 import upLoadFileRoute from './upLoadFileRoute.js';
-import categoryRoutes from './category.routes.js';
-import subCategoryRoutes from './subCategory.routes.js';
+import dimensionRoutes from './dimension.routes.js';
 import questionRoutes from './question.routes.js';
 // import userCompanyRoutes from './userCompany.routes.js';
 
@@ -20,8 +19,7 @@ router.use('/survey', surveyRoutes);
 router.use('/surveyAssignment', surveyAssignmentRoutes);
 router.use('/company', companyRoutes);
 router.use('/uploadfile', upLoadFileRoute);
-router.use('/category', categoryRoutes);
-router.use('/subcategory', subCategoryRoutes);
+router.use('/dimension', dimensionRoutes);
 router.use('/question', questionRoutes);
 // router.use('/userCompany', userCompanyRoutes);
 

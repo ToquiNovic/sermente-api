@@ -11,8 +11,9 @@ import TypeDocument from "./typeDocument.js";
 import User from "./user.js";
 import Survey from "./survey.js";
 import Question from "./question.js";
-import Category from "./Category.js";
-import SubCategory from "./subcategory.js";
+import Factor from "./factorModel.js";
+import Domain from "./domainModel.js";
+import Dimension from "./dimensionModel.js";
 import Role from "./Role.js";
 import SurveyAssignment from "./surveyAssignment.js";
 import Option from "./option.js";
@@ -40,8 +41,9 @@ export default (sequelize) => {
     People: People(sequelize),
     Profession: Profession(sequelize),
     Answer: Answer(sequelize),
-    SubCategory: SubCategory(sequelize),
-    Category: Category(sequelize),
+    Factor: Factor(sequelize),
+    Dimension: Dimension(sequelize),
+    Domain: Domain(sequelize),
     SurveyAssignment: SurveyAssignment(sequelize),
     UserRole: UserRole(sequelize),
     Role: Role(sequelize),
@@ -241,15 +243,37 @@ export default (sequelize) => {
     as: "users",
   });
 
-  // Relacionar Survey y Category
-  models.Category.belongsTo(models.Survey, {
+  // Relacionar Survey y Factor
+  models.Factor.belongsTo(models.Survey, {
     foreignKey: "surveyId",
     as: "survey",
   });
 
-  models.Survey.hasMany(models.Category, {
+  models.Survey.hasMany(models.Factor, {
     foreignKey: "surveyId",
-    as: "categories",
+    as: "factors",
+  });
+
+  // Relacionar Factor y Domain
+  models.Factor.hasMany(models.Domain, {
+    foreignKey: "factorId",
+    as: "domains",
+  });
+
+  models.Domain.belongsTo(models.Factor, {
+    foreignKey: "factorId",
+    as: "factor",
+  });
+
+  // Relacionar Domain y Dimension
+  models.Domain.hasMany(models.Dimension, {
+    foreignKey: "domainId",
+    as: "dimensions",
+  });
+
+  models.Dimension.belongsTo(models.Domain, {
+    foreignKey: "domainId",
+    as: "domain",
   });
 
   // Relacionar Survey y SurveyAssignment
@@ -263,24 +287,14 @@ export default (sequelize) => {
     as: "survey",
   });
 
-  // Relacionar Category y SubCategory
-  models.Category.hasMany(models.SubCategory, {
-    foreignKey: "categoryId",
-    as: "subcategories",
-  });
-  models.SubCategory.belongsTo(models.Category, {
-    foreignKey: "categoryId",
-    as: "category",
-  });
-
-  // Relacionar SubCategory y Question
-  models.SubCategory.hasMany(models.Question, {
-    foreignKey: "subcategoryId",
+  // Relacionar Dimension y Question
+  models.Dimension.hasMany(models.Question, {
+    foreignKey: "dimensionId",
     as: "questions",
   });
-  models.Question.belongsTo(models.SubCategory, {
-    foreignKey: "subcategoryId",
-    as: "subcategory",
+  models.Question.belongsTo(models.Dimension, {
+    foreignKey: "dimensionId",
+    as: "dimension",
   });
 
   // Relacionar Question y Option

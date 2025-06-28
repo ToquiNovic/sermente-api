@@ -1,15 +1,20 @@
-import { DataTypes } from 'sequelize';
+// factorModel.js
+import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
-  const Question = sequelize.define(
-    'Question',
+  const Factor = sequelize.define(
+    "factor",
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      text: {
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      description: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -17,16 +22,15 @@ export default (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      dimensionId: {
+      surveyId: {
         type: DataTypes.UUID,
         allowNull: false,
       },
     },
     {
-      tableName: 'questions',
-      timestamps: true,
+      tableName: "factor",
     }
   );
 
-  return Question;
+  return Factor;
 };
