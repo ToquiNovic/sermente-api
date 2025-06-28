@@ -11,7 +11,7 @@ import {
 const router = express.Router();
 
 router.get("/:id/factor", getDimensionsByIdFactor);
-router.get("/:id/survey", getDimensionByIdSurvey);
+router.get("/survey/:surveyId", getDimensionByIdSurvey);
 router.post("/", createDimension);
 router.put("/:id", updateDimension);
 router.delete("/:id", deleteDimension);
