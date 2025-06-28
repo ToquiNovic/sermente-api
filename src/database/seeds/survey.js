@@ -51,7 +51,7 @@ const seedDatabase = async () => {
         {
           id: "dbfd6b42-52d1-471e-b965-f66cc7025765",
           name: "Factor Extralaboral",
-          description: "Factor Extralaboral",
+          description: "Prueba",
           surveyId: "1fdd61bd-6d20-403d-b56c-cd2fe1163eab",
         },
         {

@@ -1,9 +1,9 @@
 // controllers/factor.controller.js
-import { where } from "sequelize";
+import { or } from "sequelize";
 import { models, sequelize } from "../database/conexion.js";
 
 export const postFactor = async (req, res) => {
-  const { name, description, surveyId } = req.body;
+  const { name, description, position, surveyId } = req.body;
 
   // Validar name
   if (!name || typeof name !== "string" || name.trim() === "") {
@@ -16,7 +16,15 @@ export const postFactor = async (req, res) => {
   if (!surveyId || typeof surveyId !== "string" || surveyId.trim() === "") {
     return res.status(400).json({
       error:
-        "La identificación del encuesta es requerida y debe ser un texto válido.",
+        "La identificación de la encuesta es requerida y debe ser un texto válido.",
+    });
+  }
+
+  // Validar position
+  const parsedPosition = parseInt(position, 10);
+  if (isNaN(parsedPosition)) {
+    return res.status(400).json({
+      error: "La posición es requerida y debe ser un número válido.",
     });
   }
 
@@ -27,16 +35,24 @@ export const postFactor = async (req, res) => {
   }
 
   // Crear el factor
-  const factor = await models.Factor.create({
-    name,
-    description,
-    surveyId,
-  });
+  try {
+    const factor = await models.Factor.create({
+      name,
+      description,
+      position: parsedPosition,
+      surveyId,
+    });
 
-  return res.status(201).json({
-    message: "Factor creado con éxito",
-    factor,
-  });
+    return res.status(201).json({
+      message: "Factor creado con éxito",
+      factor,
+    });
+  } catch (error) {
+    console.error("Error al crear factor:", error);
+    return res.status(500).json({
+      error: "Error interno del servidor al crear el factor.",
+    });
+  }
 };
 
 export const updateFactor = async (req, res) => {
@@ -155,6 +171,34 @@ export const getFactorsByIdFactor = async (req, res) => {
     return res.status(200).json({
       message: "Factores obtenidos con éxito",
       domains,
+    });
+  } catch (error) {
+    console.error("Error al obtener los factores:", error);
+    return res.status(500).json({
+      error: "Error interno del servidor al obtener los factores.",
+    });
+  }
+};
+
+export const getFactorsByIdSurvey = async (req, res) => {
+  try {
+    const { surveyId } = req.params;
+
+    if (!surveyId || typeof surveyId !== "string" || surveyId.trim() === "") {
+      return res.status(400).json({
+        error:
+          "La identificación del encuesta es requerida y debe ser un texto válido.",
+      });
+    }
+
+    const factors = await models.Factor.findAll({
+      where: { surveyId }, 
+      order: [['position', 'ASC']]
+    });
+
+    return res.status(200).json({
+      message: "Factores obtenidos con éxito",
+      factors,
     });
   } catch (error) {
     console.error("Error al obtener los factores:", error);
