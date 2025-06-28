@@ -15,8 +15,7 @@ export const postDomain = async (req, res) => {
   // Validar name
   if (!name || typeof name !== "string" || name.trim() === "") {
     return res.status(400).json({
-      error:
-        "El nombre del dominio es requerido y debe ser un texto válido.",
+      error: "El nombre del dominio es requerido y debe ser un texto válido.",
     });
   }
 
@@ -60,9 +59,7 @@ export const updateDomain = async (req, res) => {
 
     await domain.save();
 
-    res
-      .status(200)
-      .json({ message: "Domain updated successfully.", domain });
+    res.status(200).json({ message: "Domain updated successfully.", domain });
   } catch (error) {
     console.error("Error updating domain:", error);
     res.status(500).json({ message: "Error updating domain.", error });
@@ -73,9 +70,7 @@ export const deleteDomain = async (req, res) => {
   const { id } = req.params;
 
   if (!id) {
-    return res
-      .status(400)
-      .json({ message: "ID del dominio es obligatorio." });
+    return res.status(400).json({ message: "ID del dominio es obligatorio." });
   }
 
   const t = await sequelize.transaction();
@@ -116,9 +111,7 @@ export const deleteDomain = async (req, res) => {
 
     await t.commit();
 
-    return res
-      .status(200)
-      .json({ message: "Dominio eliminado exitosamente." });
+    return res.status(200).json({ message: "Dominio eliminado exitosamente." });
   } catch (error) {
     console.error("Error al eliminar el dominio:", error);
     await t.rollback();
@@ -162,57 +155,44 @@ export const getDomainsByIdFactor = async (req, res) => {
 };
 
 export const getDomainByIdSurvey = async (req, res) => {
+  const { surveyId } = req.params;
   try {
-    const { id } = req.params;
+    const factors = await models.Factor.findAll({
+      where: { surveyId },
+      include: [
+        {
+          model: models.Domain,
+          as: "domains",
+          attributes: ["id", "name"],
+        },
+      ],
+    });
 
-    if (!id || typeof id !== "string" || id.trim() === "") {
-      return res.status(400).json({
-        error:
-          "La identificación del dominio es requerida y debe ser un texto válido.",
+    if (!factors || factors.length === 0) {
+      return res.status(404).json({
+        message: "No se encontraron factores para esta encuesta.",
       });
     }
 
-    const survey = await models.Survey.findByPk(id);
-    if (!survey) {
-      return res.status(404).json({ message: "Encuesta no encontrada." });
-    } 
-
-    const domains = await models.Domain.findAll({
-      where: { surveyId: id },
-    });
-
-    if (!domains || domains.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No se encontraron dominios para esta encuesta." });
-    }
-
-    const response = await Promise.all(
-      domains.map(async (domain) => {
-        const dimensions = await models.Dimension.findAll({
-          where: { domainId: domain.id },
-          attributes: ["id", "name"],
-        });
-
-        return {
-          iddomain: domain.id,
-          namedomain: domain.name,
-          dimensions: dimensions.map((dimension) => ({
-            id: dimension.id,
-            name: dimension.name,
-          })),
-        };
-      })
-    );
+    const formattedFactors = factors.map((factor) => ({
+      id: factor.id,
+      name: factor.name,
+      description: factor.description,
+      position: factor.position,
+      domains: (factor.domains || []).map((domain) => ({
+        id: domain.id,
+        name: domain.name,
+      })),
+    }));
 
     return res.status(200).json({
-      message: "Dominios obtenidos con éxito",
-      data: response,
+      message: "Factor encontrado con éxito",
+      factors: formattedFactors,
     });
   } catch (error) {
-    console.error("Error al obtener los dominios:", error);
-    return res
-      .status(500)
-      .json({ error: "Error interno del servidor al obtener los dominios." });
+    console.error("Error al obtener factores con dominios:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor al obtener factores con dominios.",
+    });
   }
 };

@@ -15,8 +15,7 @@ export const postFactor = async (req, res) => {
   // Validar surveyId
   if (!surveyId || typeof surveyId !== "string" || surveyId.trim() === "") {
     return res.status(400).json({
-      error:
-        "La identificación de la encuesta es requerida y debe ser un texto válido.",
+      error: "La identificación de la encuesta es requerida y debe ser un texto válido.",
     });
   }
 
@@ -28,14 +27,28 @@ export const postFactor = async (req, res) => {
     });
   }
 
-  // Buscar la encuesta por su ID
-  const survey = await models.Survey.findByPk(surveyId);
-  if (!survey) {
-    return res.status(404).json({ message: "Encuesta no encontrada." });
-  }
-
-  // Crear el factor
   try {
+    // Verificar si la encuesta existe
+    const survey = await models.Survey.findByPk(surveyId);
+    if (!survey) {
+      return res.status(404).json({ message: "Encuesta no encontrada." });
+    }
+
+    // Verificar si ya existe un factor con esa posición en esta encuesta
+    const existing = await models.Factor.findOne({
+      where: {
+        surveyId,
+        position: parsedPosition,
+      },
+    });
+
+    if (existing) {
+      return res.status(409).json({
+        error: `Ya existe un factor con la posición ${parsedPosition} en esta encuesta.`,
+      });
+    }
+
+    // Crear el nuevo factor
     const factor = await models.Factor.create({
       name,
       description,
