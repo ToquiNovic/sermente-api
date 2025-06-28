@@ -8,6 +8,7 @@ import companyRoutes from './companyRoute.js';
 import upLoadFileRoute from './upLoadFileRoute.js';
 import dimensionRoutes from './dimension.routes.js';
 import questionRoutes from './question.routes.js';
+import factorRoutes from './factor.routes.js';
 // import userCompanyRoutes from './userCompany.routes.js';
 
 const router = Router();
@@ -21,6 +22,7 @@ router.use('/company', companyRoutes);
 router.use('/uploadfile', upLoadFileRoute);
 router.use('/dimension', dimensionRoutes);
 router.use('/question', questionRoutes);
+router.use('/factor', factorRoutes);
 // router.use('/userCompany', userCompanyRoutes);
 
 export default router;
