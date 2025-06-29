@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-router.get("/:subCategoryId", getQuestions);
+router.get("/:dimensionId", getQuestions);
 router.post("/", createQuestion);
 router.put("/:id", updateQuestion);
 router.delete("/:id", deleteQuestion);

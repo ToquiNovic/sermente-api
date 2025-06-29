@@ -3,12 +3,14 @@ import { models, sequelize } from "../database/conexion.js";
 
 export const getQuestions = async (req, res) => {
   try {
-    const { subCategoryId } = req.params;
+    const { dimensionId } = req.params;
+
+    console.log(dimensionId);
 
     if (
-      !subCategoryId ||
-      typeof subCategoryId !== "string" ||
-      subCategoryId.trim() === ""
+      !dimensionId ||
+      typeof dimensionId !== "string" ||
+      dimensionId.trim() === ""
     ) {
       return res.status(400).json({
         error:
@@ -17,7 +19,7 @@ export const getQuestions = async (req, res) => {
     }
 
     const questions = await models.Question.findAll({
-      where: { subcategoryId: subCategoryId },
+      where: { dimensionId: dimensionId },
       include: [
         {
           model: models.Option,
@@ -243,32 +245,39 @@ export const getQuestionBySurveyId = async (req, res) => {
       });
     }
 
-    const questions = await models.Category.findAll({
-      where: {
-        surveyId: surveyId,
-      },
+    const questions = await models.Factor.findAll({
+      where: { surveyId },
+      attributes: ["id", "name", "position"],
+      order: [["position", "ASC"]],
       include: [
         {
-          model: models.SubCategory,
-          as: "subcategories",
-          attributes: ["id", "name", "status", "categoryId"],
+          model: models.Domain,
+          as: "domains",
+          attributes: ["id", "name"],
           include: [
             {
-              model: models.Question,
-              as: "questions",
+              model: models.Dimension,
+              as: "dimensions",
+              attributes: ["id", "name"],
               include: [
                 {
-                  model: models.Option,
-                  as: "options",
-                  attributes: ["id", "text", "weight"],
+                  model: models.Question,
+                  as: "questions",
+                  attributes: ["id", "text", "position", "dimensionId"],
+                  include: [
+                    {
+                      model: models.Option,
+                      as: "options",
+                      attributes: ["id", "text", "weight"],
+                    },
+                  ],
                 },
               ],
-              attributes: ["id", "text", "position", "subcategoryId"],
             },
           ],
         },
       ],
-      attributes: ["id", "name", "description", "surveyId", "status"],
+      raw: false,
     });
 
     if (!questions || questions.length === 0) {
