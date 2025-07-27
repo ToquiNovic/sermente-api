@@ -11,7 +11,7 @@ export default (sequelize) => {
       },
       answerId: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
       },
       optionId: {
         type: DataTypes.UUID,

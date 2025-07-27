@@ -40,7 +40,7 @@ export default (sequelize) => {
     TypeDocument: TypeDocument(sequelize),
     People: People(sequelize),
     Profession: Profession(sequelize),
-    Answer: Answer(sequelize),
+    Answer: Answer(sequelize), // Eliminar answerModel
     Factor: Factor(sequelize),
     Dimension: Dimension(sequelize),
     Domain: Domain(sequelize),

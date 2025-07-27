@@ -1,9 +1,9 @@
 import { models } from "../database/conexion.js";
-
+// Aqui modificar lo de asignar encuentas a un usuario, tener en cuenta el nivel gerarquico de la empresa 
 export const assignSurveyToUser = async (req, res) => {
   try {
     const { companyId } = req.params;
-    const { userCompanyId, deadline } = req.body;
+    const { userCompanyId, deadline, reportId } = req.body;
 
     if (
       !companyId ||
@@ -68,3 +68,15 @@ export const assignSurveyToUser = async (req, res) => {
       .json({ message: "Error interno al asignar la encuesta." });
   }
 };
+
+// export const assignUsersToSurvey = async (req, res) => {
+//   const { }
+//   try {
+
+//   } catch (error) {
+//     return res.status(500).json({
+//       message: "Error al asignar usuarios a la encuesta.", 
+//       error: error.message,
+//     });
+//   }
+// }

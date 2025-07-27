@@ -90,17 +90,17 @@ export const updateQuestion = async (req, res) => {
 
 export const createQuestion = async (req, res) => {
   try {
-    const { subCategoryId, text, position, isMultipleChoice, options } =
+    const { dimensionId, text, position, isMultipleChoice, options } =
       req.body;
 
     if (
-      !subCategoryId ||
-      typeof subCategoryId !== "string" ||
-      subCategoryId.trim() === ""
+      !dimensionId ||
+      typeof dimensionId !== "string" ||
+      dimensionId.trim() === ""
     ) {
       return res.status(400).json({
         error:
-          "La identificación de la subcategoría es requerida y debe ser un texto válido.",
+          "La identificación de la dimensión es requerida y debe ser un texto válido.",
       });
     }
 
@@ -120,7 +120,7 @@ export const createQuestion = async (req, res) => {
 
     const existingQuestion = await models.Question.findOne({
       where: {
-        subcategoryId: subCategoryId,
+        dimensionId: dimensionId,
         position: position,
       },
     });
@@ -162,7 +162,7 @@ export const createQuestion = async (req, res) => {
     const question = await models.Question.create({
       text,
       position,
-      subcategoryId: subCategoryId,
+      dimensionId: dimensionId,
     });
 
     await models.Option.bulkCreate(
