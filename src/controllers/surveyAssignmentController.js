@@ -1,5 +1,107 @@
 import { models, sequelize } from "../database/conexion.js";
 
+export const getSurveysAssignedByCompany = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    // Validation Company
+    const company = await models.Company.findByPk(companyId);
+    if (!company)
+      return res.status(404).json({ message: "La empresa no existe." });
+
+    // Validation user Company
+    const userCompany = await models.UserCompany.findAll({
+      where: { companyId },
+      attributes: ["id", "companyId", "userId"],
+    });
+    if (!userCompany || userCompany.length === 0)
+      return res
+        .status(404)
+        .json({ message: "No users found for this company." });
+
+    const companyUserIds = userCompany.map((uc) => uc.id);
+
+    // Validation Assignments
+    const assignments = await models.SurveyAssignment.findAll({
+      where: { userCompanyId: companyUserIds },
+      attributes: ["id", "surveyId"],
+    });
+    if (!assignments || assignments.length === 0)
+      return res
+        .status(404)
+        .json({ message: "No assignments found for this company." });
+
+    const assignmentSurveyIds = assignments.map((a) => a.surveyId);
+
+    // Fetch Surveys
+    const surveys = await models.Survey.findAll({
+      where: { id: assignmentSurveyIds },
+      attributes: ["id", "title", "description"],
+    });
+
+    if (!surveys || surveys.length === 0)
+      return res
+        .status(404)
+        .json({ message: "No surveys found for this company." });
+
+    return res.status(200).json({ message: "Surveys found", surveys });
+  } catch (error) {
+    console.error("Error fetching surveys by company:", error);
+    return res.status(500).json({
+      message: "Error fetching surveys by company.",
+      error: error.message,
+    });
+  }
+};
+
+export const getSurveysAssignedByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch User Companies
+    const userCompany = await models.UserCompany.findOne({
+      where: { userId },
+      attributes: ["id", "companyId"],
+    });
+
+    if (!userCompany)
+      return res
+        .status(404)
+        .json({ message: "No companies found for this user." });
+
+    // Fetch Assignments
+    const assignments = await models.SurveyAssignment.findAll({
+      where: { userCompanyId: userCompany.id },
+      attributes: ["id", "surveyId"],
+    });
+
+    if (!assignments || assignments.length === 0)
+      return res
+        .status(404)
+        .json({ message: "No assignments found for this user." });
+
+    // Fetch Surveys
+    const surveyIds = assignments.map((a) => a.surveyId);
+    const surveys = await models.Survey.findAll({
+      where: { id: surveyIds },
+      attributes: ["id", "title", "description"],
+    });
+
+    if (!surveys || surveys.length === 0)
+      return res
+        .status(404)
+        .json({ message: "No surveys found for this user." });
+
+    return res.status(200).json({ message: "Surveys found", surveys });
+  } catch (error) {
+    console.error("Error fetching surveys by user:", error);
+    return res.status(500).json({
+      message: "Error fetching surveys by user.",
+      error: error.message,
+    });
+  }
+};
+
 export const assignUsersToSurvey = async (req, res) => {
   const { companyId } = req.params;
   const { users, deadline } = req.body;
@@ -77,17 +179,6 @@ export const assignUsersToSurvey = async (req, res) => {
         ],
       });
 
-      console.log(
-        "peopleData",
-        peopleData.map((user) => ({
-          userId: user.id,
-          peopleId: user.people?.id,
-          peopleNames: user.people?.names,
-          hierarchyOfEmployment:
-            user.people?.hierarchyOfEmployment?.name || null,
-        }))
-      );
-
       // User Companies
       const userCompanies = await models.UserCompany.findAll({
         where: {
@@ -123,8 +214,6 @@ export const assignUsersToSurvey = async (req, res) => {
           (assignment) => `${assignment.surveyId}-${assignment.userCompanyId}`
         )
       );
-
-      console.log("Existing assignments found:", existingAssignments.length);
 
       // Crear asignaciones múltiples según jerarquía
       const assignmentsData = [];
@@ -182,26 +271,6 @@ export const assignUsersToSurvey = async (req, res) => {
           }
         }
       });
-
-      console.log("New assignments to create:", assignmentsData.length);
-      console.log("Skipped assignments:", skippedAssignments.length);
-
-      console.log(
-        "Assignment details:",
-        assignmentsData.map((assignment) => {
-          const survey = Surveys.find((s) => s.id === assignment.surveyId);
-          const userData = peopleData.find(
-            (u) => userCompanyMap[u.id] === assignment.userCompanyId
-          );
-          return {
-            surveyTitle: survey?.title || "Unknown",
-            userName: userData?.people?.names || "Unknown",
-            userHierarchy:
-              userData?.people?.hierarchyOfEmployment?.name || "Sin jerarquía",
-            userCompanyId: assignment.userCompanyId,
-          };
-        })
-      );
 
       // Solo crear asignaciones si hay nuevas asignaciones
       if (assignmentsData.length === 0) {
