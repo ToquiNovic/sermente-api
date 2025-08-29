@@ -1,22 +1,23 @@
-import { Router } from 'express';
-import {
-    getAllAnswers,
-    getAnswerById,
-    getAnswerByUserCompanyId,
-    getAnswerByOptionId,
-    createAnswer,
-    updateAnswer,
-    deleteAnswer
- } from '../controllers/answer.controller.js'
+import { Router } from "express";
+import * as answerOptionController from "../controllers/answerOption.controller.js";
 
 const router = Router();
 
-router.get('/', getAllAnswers);
-router.get('/:id', getAnswerById);
-router.get('/userCompany/:userCompanyId', getAnswerByUserCompanyId);
-router.get('/option/:optionId', getAnswerByOptionId);
-router.post('/', createAnswer);
-router.put('/:id', updateAnswer);
-router.delete('/:id', deleteAnswer);
+// GET routes
+router.get("/", answerOptionController.getAllAnswerOptions);
+router.get("/:id", answerOptionController.getAnswerOptionById);
+router.get("/user/:userCompanyId", answerOptionController.getAnswerOptionsByUserCompanyId);
+router.get("/option/:optionId", answerOptionController.getAnswerOptionsByOptionId);
+
+// POST routes
+router.post("/", answerOptionController.createAnswerOption);
+router.post("/multiple", answerOptionController.createMultipleAnswerOptions);
+
+// PUT routes
+router.put("/:id", answerOptionController.updateAnswerOption);
+
+// DELETE routes
+router.delete("/:id", answerOptionController.deleteAnswerOption);
+router.delete("/user/:userCompanyId", answerOptionController.deleteAnswerOptionsByUser);
 
 export default router;
